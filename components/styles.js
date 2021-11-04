@@ -1,17 +1,17 @@
-import styled from 'styled-components';
-import { View, Text, Image, TextInput } from 'react-native';
-import Constants from 'expo-constants';
+import styled from "styled-components";
+import { View, Text, Image, TextInput, Picker } from "react-native";
+import Constants from "expo-constants";
 
 const StatusBarHeight = Constants.statusBarHeight;
 
 export const Colors = {
-  primary: '#ffffff',
-  secondary: '#E5E7EB',
-  tertiary: '#1F2937',
-  darklight: '#9CA3AF',
-  brand: '#6D28D9',
-  green: '#10B981',
-  red: '#EF4444',
+  primary: "#ffffff",
+  secondary: "#E5E7EB",
+  tertiary: "#1F2937",
+  darklight: "#9CA3AF",
+  brand: "#6D28D9",
+  green: "#10B981",
+  red: "#EF4444",
 };
 
 const { primary, secondary, tertiary, darklight, brand, green, red } = Colors;
@@ -19,7 +19,7 @@ const { primary, secondary, tertiary, darklight, brand, green, red } = Colors;
 export const StyledContainer = styled.View`
   flex: 1;
   padding: 25px;
-  padding-top: ${StatusBarHeight + 10}px;
+  padding-top: ${StatusBarHeight + 30}px;
   background-color: ${primary};
 `;
 
@@ -30,8 +30,8 @@ export const InnerContainer = styled.View`
 `;
 
 export const PageLogo = styled.Image`
-  width: 250px;
-  height: 250px;
+  width: 140px;
+  height: 140px;
 `;
 
 export const PageTitle = styled.Text`
@@ -45,6 +45,15 @@ export const PageTitle = styled.Text`
 export const SubTitle = styled.Text`
   font-size: 18px;
   margin-bottom: 20px;
+  letter-spacing: 1px;
+  font-weight: bold;
+  color: ${tertiary};
+`;
+
+export const StyledPicker = styled.Picker`
+  font-size: 10px;
+  margin-vertical: 1px;
+  margin-bottom: 1px;
   letter-spacing: 1px;
   font-weight: bold;
   color: ${tertiary};
@@ -70,7 +79,7 @@ export const StyledTextInput = styled.TextInput`
 export const StyledInputLabel = styled.Text`
   color: ${tertiary};
   font-size: 13px;
-  text.align: left;
+  text-align: left;
 `;
 
 export const LeftIcon = styled.View`
