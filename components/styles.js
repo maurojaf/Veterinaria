@@ -129,6 +129,12 @@ export const ButtonText = styled.Text`
 export const MsgBox = styled.Text`
   text-align: center;
   font-size: 13px;
+  color: ${(props) =>
+    props.type == 200
+      ? green
+      : props.type === 500 || props.type === 404 || props.type === 401
+      ? red
+      : tertiary};
 `;
 
 export const Line = styled.View`

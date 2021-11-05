@@ -23,7 +23,7 @@ import {
   StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
@@ -34,10 +34,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { brand, darklight, primary } = Colors;
 
 const Login = ({ navigation }) => {
-  const [usuario, setUsuario] = useState("");
-  const [password, setPassword] = useState("");
   const [veterinaria, setVeterinaria] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(0);
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
@@ -53,6 +53,33 @@ const Login = ({ navigation }) => {
     //   });
   };
 
+  const HandleLogin = (credentials, setSubmitting) => {
+    HandleMessage(null);
+    const url =
+      "http://appserv-loginclient.azurewebsites.net/api/v1/LoginClient/LoginValidate";
+    axios
+      .post(url, credentials)
+      .then((response) => {
+        // console.log(response.data.Result.Value.Token);
+        if (response.status !== 200) {
+          HandleMessage("Error al Iniciar Sesión", response.status);
+        } else {
+          navigation.navigate("Mascotas", { ...response.data });
+        }
+        setSubmitting(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setSubmitting(false);
+        HandleMessage("Error de conexión");
+      });
+  };
+
+  const HandleMessage = (message, type) => {
+    setMessage(message);
+    setMessageType(type);
+  };
+
   return (
     <KeyboardAvoidingWrapper>
       <StyledContainer>
@@ -65,13 +92,25 @@ const Login = ({ navigation }) => {
           <PageTitle>Veterinaria Bienvenido</PageTitle>
           <SubTitle>Selecciona La Veterinaria que visitaste</SubTitle>
           <Formik
-            initialValues={{ email: "", password: "", veterinaria: "" }}
-            onSubmit={(values) => {
-              console.log(values);
-              navigation.navigate("Mascotas");
+            initialValues={{ LoginUser: "", Password: "" }}
+            onSubmit={(values, { setSubmitting }) => {
+              // console.log(values);
+              // navigation.navigate("Mascotas");
+              if (values.LoginUser == "" || values.Password == "") {
+                HandleMessage("Ingresa los campos de Correo y/o Contraseña");
+                setSubmitting(false);
+              } else {
+                HandleLogin(values, setSubmitting);
+              }
             }}
           >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              isSubmitting,
+            }) => (
               <StyledFormArea>
                 <StyledPicker
                   selectedValue={veterinaria}
@@ -81,7 +120,7 @@ const Login = ({ navigation }) => {
                   }
                 >
                   <StyledPicker.Item
-                    label="Veterinaria Bilbao"
+                    label="Veterinaria San Nicolas"
                     value="VetBilbao"
                   />
                   <StyledPicker.Item
@@ -95,9 +134,9 @@ const Login = ({ navigation }) => {
                   icon="mail"
                   placeholder="ingresa tu cuenta"
                   placeholderTextColor={darklight}
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
+                  onChangeText={handleChange("LoginUser")}
+                  onBlur={handleBlur("LoginUser")}
+                  value={values.LoginUser}
                   keyboardType="email-address"
                 />
                 <MyTextInput
@@ -105,20 +144,26 @@ const Login = ({ navigation }) => {
                   icon="lock"
                   placeholder="*  *  *  *  *  *"
                   placeholderTextColor={darklight}
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
+                  onChangeText={handleChange("Password")}
+                  onBlur={handleBlur("Password")}
+                  value={values.Password}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
                 />
-                <MsgBox>
-                  Ingresa tus credenciales para iniciar sesión en la Aplicación
-                </MsgBox>
-                <StyledButton onPress={handleSubmit}>
-                  <ButtonText>Iniciar Sesión </ButtonText>
-                </StyledButton>
+                <MsgBox type={messageType}>{message}</MsgBox>
+                {!isSubmitting && (
+                  <StyledButton onPress={handleSubmit}>
+                    <ButtonText>Iniciar Sesión </ButtonText>
+                  </StyledButton>
+                )}
+                {isSubmitting && (
+                  <StyledButton onPress={handleSubmit} disabled={true}>
+                    <ActivityIndicator size="large" color={primary} />
+                  </StyledButton>
+                )}
+
                 <Line />
                 {/* <StyledButton google={true} onPress={handleSubmit}>
                 <Fontisto name="google" color={primary} size={25} />
