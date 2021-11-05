@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyledContainer,
@@ -26,12 +26,24 @@ import { Formik } from "formik";
 import { View, Picker } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
+import { CredentialsContext } from "../../components/credentials-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //Colors
 const { brand, darklight, primary } = Colors;
 
 const Mascotas = ({ navigation }) => {
   const [mascotas, setMascotas] = useState("Jacko");
+  const { storedCredentials, setStoredCredentials } =
+    useContext(CredentialsContext);
+
+  const clearLogin = () => {
+    AsyncStorage.removeItem("token")
+      .then(() => {
+        setStoredCredentials("");
+      })
+      .catch((error) => console.log(error));
+  };
   return (
     <KeyboardAvoidingWrapper>
       <StyledContainer>
@@ -81,6 +93,9 @@ const Mascotas = ({ navigation }) => {
                 <Line />
                 <StyledButton google onPress={handleSubmit}>
                   <ButtonText>Detalles de Atención Médica </ButtonText>
+                </StyledButton>
+                <StyledButton onPress={clearLogin}>
+                  <ButtonText>Cerrar Sesión </ButtonText>
                 </StyledButton>
               </StyledFormArea>
             )}

@@ -27,8 +27,8 @@ import { View, ActivityIndicator } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 //Colors
 const { brand, darklight, primary } = Colors;
@@ -41,16 +41,20 @@ const Login = ({ navigation }) => {
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
-  // const PersistLogin = (credentials, message, status) => {
-  const PersistLogin = () => {
-    AsyncStorage.setItem("token", "sdadsadasd");
-    // AsyncStorage.setItem("token", JSON.stringify(credentials))
-    //   .then(() => {
-    //     setStoredCredentials(credentials);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
+  const PersistLogin = (Token, Status) => {
+    AsyncStorage.setItem("token", Token)
+      .then(() => {
+        HandleMessage("Iniciando Sesión Automaticamente", Status);
+        setStoredCredentials(Token);
+      })
+      .catch((error) => {
+        console.log(error);
+        AsyncStorage.removeItem("token");
+        HandleMessage(
+          "Error al Recuperar su sesión, Reintente iniciando sesión",
+          Status
+        );
+      });
   };
 
   const HandleLogin = (credentials, setSubmitting) => {
@@ -64,7 +68,9 @@ const Login = ({ navigation }) => {
         if (response.status !== 200) {
           HandleMessage("Error al Iniciar Sesión", response.status);
         } else {
-          navigation.navigate("Mascotas", { ...response.data });
+          // navigation.navigate("Mascotas", { ...response.data });
+          navigation.navigate("Mascotas");
+          PersistLogin(response.data.Result.Value.Token, response.status);
         }
         setSubmitting(false);
       })
@@ -94,8 +100,6 @@ const Login = ({ navigation }) => {
           <Formik
             initialValues={{ LoginUser: "", Password: "" }}
             onSubmit={(values, { setSubmitting }) => {
-              // console.log(values);
-              // navigation.navigate("Mascotas");
               if (values.LoginUser == "" || values.Password == "") {
                 HandleMessage("Ingresa los campos de Correo y/o Contraseña");
                 setSubmitting(false);

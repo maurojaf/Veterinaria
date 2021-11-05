@@ -9,28 +9,27 @@ export default function App() {
   const [appReady, setAppReady] = useState(false);
   const [storedCredentials, setStoredCredentials] = useState("");
 
-  // const checkLoginCredentials = () => {
-  //   AsyncStorage.getItem("token")
-  //     .then((result) => {
-  //       if (result !== null) {
-  //         setStoredCredentials;
-  //         JSON.parse(result);
-  //       } else {
-  //         setStoredCredentials(null);
-  //       }
-  //     })
-  //     .catch((error) => console.log(error));
-  // };
+  const checkLoginCredentials = () => {
+    AsyncStorage.getItem("token")
+      .then((result) => {
+        if (result !== null) {
+          setStoredCredentials(result);
+        } else {
+          setStoredCredentials(null);
+        }
+      })
+      .catch((error) => console.log(error));
+  };
 
-  // if (!appReady) {
-  //   return (
-  //     <AppLoading
-  //       startAsync={checkLoginCredentials}
-  //       onFinish={() => setAppReady(true)}
-  //       onError={console.warn}
-  //     />
-  //   );
-  // }
+  if (!appReady) {
+    return (
+      <AppLoading
+        startAsync={checkLoginCredentials}
+        onFinish={() => setAppReady(true)}
+        onError={console.warn}
+      />
+    );
+  }
 
   return (
     <CredentialsContext.Provider
