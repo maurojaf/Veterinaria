@@ -15,38 +15,35 @@ const RootStack = () => {
   return (
     <CredentialsContext.Consumer>
       {({ storedCredentials }) => (
-        console.log(storedCredentials),
-        (
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerStyle: {
-                  backgroundColor: "transparent",
-                },
-                headerTintColor: tertiary,
-                headerTransparent: true,
-                headerTitle: "",
-                headerLeftContainerStyle: {
-                  paddingLeft: 20,
-                },
-              }}
-              initialRouteName="Login"
-            >
-              {storedCredentials ? (
-                <>
-                  {/* <Stack.Screen name="Login" component={Login} /> */}
-                  <Stack.Screen name="Mascotas" component={Mascotas} />
-                  <Stack.Screen name="FichaClinica" component={FichaClinica} />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="Login" component={Login} />
-                  {/* <Stack.Screen name="Mascotas" component={Mascotas} /> */}
-                </>
-              )}
-            </Stack.Navigator>
-          </NavigationContainer>
-        )
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: "transparent",
+              },
+              headerTintColor: tertiary,
+              headerTransparent: true,
+              headerTitle: "",
+              headerLeftContainerStyle: {
+                paddingLeft: 20,
+              },
+            }}
+            initialRouteName="Login"
+          >
+            {storedCredentials ? (
+              <>
+                {/* <Stack.Screen name="Login" component={Login} /> */}
+                <Stack.Screen name="Mascotas" component={Mascotas} />
+                <Stack.Screen name="FichaClinica" component={FichaClinica} />
+              </>
+            ) : (
+              <>
+                <Stack.Screen name="Login" component={Login} />
+                {/* <Stack.Screen name="Mascotas" component={Mascotas} /> */}
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
       )}
     </CredentialsContext.Consumer>
   );

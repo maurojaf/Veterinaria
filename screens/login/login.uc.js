@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyledContainer,
@@ -38,6 +38,8 @@ const Login = ({ navigation }) => {
   const [hidePassword, setHidePassword] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(0);
+  const [selectVeterinaria, setSelectVeterinaria] = useState([]);
+  const [urlLoginConcatenado, setUrlLoginConcatenado] = useState("");
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
@@ -56,35 +58,95 @@ const Login = ({ navigation }) => {
         );
       });
   };
-
   const HandleLogin = (credentials, setSubmitting) => {
     HandleMessage(null);
-    const url =
-      "http://appserv-loginclient.azurewebsites.net/api/v1/LoginClient/LoginValidate";
-    axios
-      .post(url, credentials)
-      .then((response) => {
-        // console.log(response.data.Result.Value.Token);
-        if (response.status !== 200) {
-          HandleMessage("Error al Iniciar Sesión", response.status);
-        } else {
-          // navigation.navigate("Mascotas", { ...response.data });
-          navigation.navigate("Mascotas");
-          PersistLogin(response.data.Result.Value.Token, response.status);
-        }
-        setSubmitting(false);
-      })
-      .catch((error) => {
-        console.log(error);
-        setSubmitting(false);
-        HandleMessage("Error de conexión");
-      });
+    if (urlLoginConcatenado === "") {
+      HandleMessage("Seleccione una Veterinaria");
+      setSubmitting(false);
+    } else {
+      const url = urlLoginConcatenado + "api/v1/LoginClient/LoginValidate";
+      axios
+        .post(url, credentials)
+        .then((response) => {
+          if (response.status !== 200) {
+            HandleMessage("Error al Iniciar Sesión", response.status);
+          } else {
+            navigation.navigate("Mascotas");
+            PersistLogin(response.data.Result.Value.Token, response.status);
+          }
+          setSubmitting(false);
+        })
+        .catch((error) => {
+          console.log(error);
+          setSubmitting(false);
+          HandleMessage("Error de conexión");
+        });
+    }
   };
-
   const HandleMessage = (message, type) => {
     setMessage(message);
     setMessageType(type);
   };
+  const HandleSelect = () => {
+    HandleMessage(null);
+    const url =
+      "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
+    axios
+      .get(url)
+      .then((response) => {
+        // console.log(response.data.Result.Value.Token);
+        if (response.status !== 200) {
+          HandleMessage("Error al Obtener Información Sesión", response.status);
+        } else {
+          const data = [];
+          response.data.Result.Value.map((row, i) => {
+            let ds_json = {
+              veterinaria: "",
+            };
+            ds_json.veterinaria = row.FantasyName;
+            data.push(ds_json);
+          });
+          setSelectVeterinaria(data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        HandleMessage("Error de conexión");
+      });
+  };
+  const handleChangeVeterinaria = async (value) => {
+    setVeterinaria(value);
+    const url =
+      "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
+    axios
+      .get(url)
+      .then((response) => {
+        if (response.status !== 200) {
+          HandleMessage(
+            "Error al Obtener Información de la Veterinaria",
+            response.status
+          );
+        } else {
+          response.data.Result.Value.map((row, i) => {
+            if (row.FantasyName === value) {
+              row.Urls.map((row2, i) => {
+                row2.UrlName === "Api Login"
+                  ? setUrlLoginConcatenado(row2.Url)
+                  : AsyncStorage.setItem("urlGlobal", row2.Url);
+              });
+            }
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        HandleMessage("Error de conexión");
+      });
+  };
+
+  useEffect(() => {
+    HandleSelect();
+  }, []);
 
   return (
     <KeyboardAvoidingWrapper>
@@ -119,19 +181,18 @@ const Login = ({ navigation }) => {
                 <StyledPicker
                   selectedValue={veterinaria}
                   value={values.veterinaria}
-                  onValueChange={(itemValue, itemIndex) =>
-                    setVeterinaria(itemValue)
+                  onValueChange={(itemValue) =>
+                    handleChangeVeterinaria(itemValue)
                   }
                 >
-                  <StyledPicker.Item
-                    label="Veterinaria San Nicolas"
-                    value="VetBilbao"
-                  />
-                  <StyledPicker.Item
-                    label="Puppies and Kittens"
-                    value="PandK"
-                  />
-                  <StyledPicker.Item label="Llanquihue" value="Llanquihue" />
+                  <StyledPicker.Item label="Seleccione Campo" value="" />
+                  {selectVeterinaria.map((data, i) => (
+                    <StyledPicker.Item
+                      label={data.veterinaria}
+                      value={data.veterinaria}
+                      key={i}
+                    />
+                  ))}
                 </StyledPicker>
                 <MyTextInput
                   label="Correo Registrado"
