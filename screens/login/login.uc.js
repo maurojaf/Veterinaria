@@ -47,6 +47,7 @@ const Login = ({ navigation }) => {
     AsyncStorage.setItem("token", Token)
       .then(() => {
         HandleMessage("Iniciando Sesión Automaticamente", Status);
+        console.log(Token);
         setStoredCredentials(Token);
       })
       .catch((error) => {

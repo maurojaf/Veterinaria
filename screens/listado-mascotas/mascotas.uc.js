@@ -39,7 +39,7 @@ const Mascotas = ({ navigation }) => {
   const [mascotasSelect, setMascotasSelect] = useState([]);
   const [token, setToken] = useState("");
   const [pesoMascota, setPesoMascota] = useState(0);
-  const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
+  // const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [edad, setEdad] = useState("");
   const [especie, setEspecie] = useState("");
   const [raza, setRaza] = useState("");
@@ -59,12 +59,13 @@ const Mascotas = ({ navigation }) => {
     const token = await AsyncStorage.getItem("token");
     setUrlGlobal(url);
     setToken(token);
+    getSelectMascotas(url, token);
   };
-  const getSelectMascotas = () => {
-    const url = urlGlobal + "api/v1/Client/pets";
+  const getSelectMascotas = async (urlObtenida, tokenObtenido) => {
+    const url = urlObtenida + "api/v1/Client/pets";
     let configAxios = {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${tokenObtenido}`,
         "Content-Type": "application/json",
         Accept: "application/json",
       },
@@ -72,6 +73,7 @@ const Mascotas = ({ navigation }) => {
     axios
       .get(url, configAxios)
       .then((response) => {
+        // console.log(response);
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
@@ -87,11 +89,12 @@ const Mascotas = ({ navigation }) => {
         }
       })
       .catch((error) => {
+        console.log(error);
         console.log(error + " entro en error");
       });
   };
 
-  const handleSelectMascota = (value) => {
+  const handleSelectMascota = async (value) => {
     setMascotas(value);
     const url = urlGlobal + "api/v1/Client/pets";
     let configAxios = {
@@ -110,7 +113,7 @@ const Mascotas = ({ navigation }) => {
           response.data.Result.Value.map((row, i) => {
             if (row.Name === value) {
               setPesoMascota(row.Weight);
-              setFechaNacimiento(row.DateOfBirth);
+              // setFechaNacimiento(row.DateOfBirth);
               setEdad(row.Age);
               setEspecie(row.Specie);
               setRaza(row.Clasification);
@@ -133,7 +136,7 @@ const Mascotas = ({ navigation }) => {
 
   useEffect(() => {
     GetUrlGlobal();
-    getSelectMascotas();
+    // getSelectMascotas();
   }, []);
 
   return (
@@ -186,7 +189,7 @@ const Mascotas = ({ navigation }) => {
                 <SubTitle>Raza : {raza}</SubTitle>
                 <SubTitle>Edad : {edad}</SubTitle>
                 <SubTitle>Peso : {pesoMascota}</SubTitle>
-                <SubTitle>Fecha Nacimiento : {fechaNacimiento}</SubTitle>
+                {/* <SubTitle>Fecha Nacimiento : {fechaNacimiento}</SubTitle> */}
                 <SubTitle>URL Seteada : {urlGlobal}</SubTitle>
                 {/* <SubTitle>Token : {token}</SubTitle> */}
                 <Line />
