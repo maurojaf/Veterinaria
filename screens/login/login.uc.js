@@ -186,7 +186,7 @@ const Login = ({ navigation }) => {
                     handleChangeVeterinaria(itemValue)
                   }
                 >
-                  <StyledPicker.Item label="Seleccione Campo" value="" />
+                  <StyledPicker.Item label="Seleccione Veterinaria" value="" />
                   {selectVeterinaria.map((data, i) => (
                     <StyledPicker.Item
                       label={data.veterinaria}

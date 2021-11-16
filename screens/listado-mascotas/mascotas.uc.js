@@ -36,15 +36,19 @@ const { brand, darklight, primary } = Colors;
 const Mascotas = ({ navigation }) => {
   const [mascotas, setMascotas] = useState("");
   const [urlGlobal, setUrlGlobal] = useState("");
-  const [mascotasSelect, setMascotasSelect] = useState([]);
   const [token, setToken] = useState("");
-  const [pesoMascota, setPesoMascota] = useState(0);
+  const [mascotasSelect, setMascotasSelect] = useState([]);
+  const [pesoMascota, setPesoMascota] = useState(null);
+  const [idMascota, setIdMascota] = useState(null);
   // const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [edad, setEdad] = useState("");
   const [especie, setEspecie] = useState("");
   const [raza, setRaza] = useState("");
+  const [idMascotaStorage, setIdMascotaStorage] = useState("");
+  const [disabledDetalleAtención, setDisabledDetalleAtención] = useState(true);
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
+  let idStorage = "";
 
   const clearLogin = () => {
     AsyncStorage.removeItem("token")
@@ -53,10 +57,10 @@ const Mascotas = ({ navigation }) => {
       })
       .catch((error) => console.log(error));
   };
-
   const GetUrlGlobal = async () => {
     const url = await AsyncStorage.getItem("urlGlobal");
     const token = await AsyncStorage.getItem("token");
+    console.log(token);
     setUrlGlobal(url);
     setToken(token);
     getSelectMascotas(url, token);
@@ -73,7 +77,6 @@ const Mascotas = ({ navigation }) => {
     axios
       .get(url, configAxios)
       .then((response) => {
-        // console.log(response);
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
@@ -89,13 +92,22 @@ const Mascotas = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.log(error);
-        console.log(error + " entro en error");
+        if (error.response.status === 401) {
+          clearLogin();
+        }
       });
   };
-
   const handleSelectMascota = async (value) => {
     setMascotas(value);
+    setDisabledDetalleAtención(true);
+    setPesoMascota(null);
+    // setFechaNacimiento(row.DateOfBirth);
+    setEdad(null);
+    setEspecie("");
+    setRaza("");
+    setIdMascota(null);
+  };
+  const handleSeleccionarMascota = async () => {
     const url = urlGlobal + "api/v1/Client/pets";
     let configAxios = {
       headers: {
@@ -111,12 +123,16 @@ const Mascotas = ({ navigation }) => {
           console.log("error al obtener información");
         } else {
           response.data.Result.Value.map((row, i) => {
-            if (row.Name === value) {
+            if (row.Name === mascotas) {
+              AsyncStorage.setItem("idMascota", JSON.stringify(row.Id));
+
+              setIdMascota(row.Id);
               setPesoMascota(row.Weight);
               // setFechaNacimiento(row.DateOfBirth);
               setEdad(row.Age);
               setEspecie(row.Specie);
               setRaza(row.Clasification);
+              setDisabledDetalleAtención(false);
               return "ok";
             }
             // else {
@@ -130,7 +146,10 @@ const Mascotas = ({ navigation }) => {
         }
       })
       .catch((error) => {
-        console.log(error + " entro en error");
+        setDisabledDetalleAtención(true);
+        if (error.response.status === 401) {
+          clearLogin();
+        }
       });
   };
 
@@ -148,7 +167,7 @@ const Mascotas = ({ navigation }) => {
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {
-              console.log(values);
+              // console.log(values);
               navigation.navigate("FichaClinica");
             }}
           >
@@ -157,7 +176,6 @@ const Mascotas = ({ navigation }) => {
                 <MsgBox>Selecciona una de tus mascotas </MsgBox>
                 <StyledPicker
                   selectedValue={mascotas}
-                  // style={{ height: 150, width: 150 }}
                   value={values.mascota}
                   onValueChange={(itemValue, itemIndex) =>
                     handleSelectMascota(itemValue)
@@ -172,32 +190,27 @@ const Mascotas = ({ navigation }) => {
                     />
                   ))}
                 </StyledPicker>
-                <StyledButton onPress={handleSubmit}>
+                <StyledButton onPress={handleSeleccionarMascota}>
                   <ButtonText>Seleccionar Mascota </ButtonText>
                 </StyledButton>
                 <Line />
-                <SubTitle>
-                  Mascota Seleccioanda -{">"} {mascotas}
-                </SubTitle>
-                <MsgBox>
-                  Desliza hacia abajo para más información relacionada a la
-                  mascota {mascotas}
-                </MsgBox>
-                <Line />
                 <SubTitle>Nombre : {mascotas}</SubTitle>
+                <SubTitle>Id Mascota : {idMascota}</SubTitle>
                 <SubTitle>Especie : {especie}</SubTitle>
                 <SubTitle>Raza : {raza}</SubTitle>
                 <SubTitle>Edad : {edad}</SubTitle>
-                <SubTitle>Peso : {pesoMascota}</SubTitle>
-                {/* <SubTitle>Fecha Nacimiento : {fechaNacimiento}</SubTitle> */}
-                <SubTitle>URL Seteada : {urlGlobal}</SubTitle>
-                {/* <SubTitle>Token : {token}</SubTitle> */}
+                <SubTitle>Peso : {pesoMascota} KG</SubTitle>
                 <Line />
-                <StyledButton google onPress={handleSubmit}>
-                  <ButtonText>Detalles de Atención Médica </ButtonText>
-                </StyledButton>
-                <StyledButton onPress={clearLogin}>
-                  <ButtonText>Cerrar Sesión </ButtonText>
+                <StyledButton
+                  disabled={disabledDetalleAtención}
+                  google
+                  onPress={handleSubmit}
+                >
+                  <ButtonText>
+                    {!disabledDetalleAtención
+                      ? "Obtener Detalles de Atención Médica de " + mascotas
+                      : "Selecciona a una mascota"}
+                  </ButtonText>
                 </StyledButton>
               </StyledFormArea>
             )}

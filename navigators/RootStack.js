@@ -32,14 +32,12 @@ const RootStack = () => {
           >
             {storedCredentials ? (
               <>
-                {/* <Stack.Screen name="Login" component={Login} /> */}
                 <Stack.Screen name="Mascotas" component={Mascotas} />
                 <Stack.Screen name="FichaClinica" component={FichaClinica} />
               </>
             ) : (
               <>
                 <Stack.Screen name="Login" component={Login} />
-                {/* <Stack.Screen name="Mascotas" component={Mascotas} /> */}
               </>
             )}
           </Stack.Navigator>

@@ -10,7 +10,7 @@ import {
 const KeyboardAvoidingWrapper = ({ children }) => {
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS == "ios" ? "padding" : "height"}
+      behavior={Platform.OS == "ios" ? "padding" : "padding"}
       style={{ flex: 1 }}
     >
       <ScrollView>

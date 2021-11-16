@@ -2,7 +2,7 @@
   "expo": {
     "name": "veterinaria-ReactNative",
     "slug": "veterinaria-ReactNative",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -24,7 +24,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.maurojaf.veterinariaReactNative"
     },
     "web": {
       "favicon": "./assets/favicon.png"
