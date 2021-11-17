@@ -7,6 +7,7 @@ import {
   PageTitle,
   SubTitle,
   StyledFormArea,
+  StyledFormAreaCard,
   LeftIcon,
   StyledInputLabel,
   StyledTextInput,
@@ -14,6 +15,7 @@ import {
   StyledButton,
   ButtonText,
   MsgBox,
+  MsgBoxCard,
   Line,
   Colors,
   ExtraText,
@@ -24,6 +26,7 @@ import {
 } from "../../components/styles";
 import { Formik } from "formik";
 import { View, Picker } from "react-native";
+import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -137,42 +140,80 @@ const FichaClinica = ({ navigation }) => {
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values }) => (
-              <StyledFormArea>
+              <StyledFormAreaCard>
                 <MsgBox>Información sobre Atenciones Veterinarias </MsgBox>
                 <Line />
                 {dataObtenida.map((row, i) => (
                   <>
-                    <SubTitle>Fecha : {row.Date} </SubTitle>
-                    <SubTitle>Anamnesis : {row.Anamnesis} </SubTitle>
-                    <SubTitle>Observaciones : {row.Observation} </SubTitle>
-                    <SubTitle>Diagnostico : {row.Diagnosis} </SubTitle>
-                    <SubTitle>Tratamiento : {row.Treatment} </SubTitle>
-                    <SubTitle>
-                      Veterinarian : {row.Veterinarian.NameVeterinario}
-                    </SubTitle>
-                    <SubTitle>RUT : {row.Veterinarian.IdentityCard}</SubTitle>
-                    <SubTitle>Teléfono : {row.Veterinarian.Telephone}</SubTitle>
-                    <Line />
-                    {row.LstProducts.map((row1, i) => (
-                      <>
-                        <SubTitle>Nombre Producto : {row1.Name}</SubTitle>
-                        <SubTitle>Descripción : {row1.Description}</SubTitle>
-                        <SubTitle>Precio :{row1.Price}</SubTitle>
-                        <Line />
-                      </>
-                    ))}
-                    <StyledButton
-                      google
-                      // onPress={handleSubmit}
-                    >
-                      <ButtonText>Descargar Ficha en PDF</ButtonText>
-                    </StyledButton>
-                    <Line />
+                    <Card>
+                      <Card.Title>
+                        <MsgBoxCard>
+                          Veterinario : {row.Veterinarian.NameVeterinario}
+                        </MsgBoxCard>
+                      </Card.Title>
+                      <Line />
+                      <MsgBoxCard>
+                        Fecha : <MsgBoxCard week> {row.Date}</MsgBoxCard>
+                      </MsgBoxCard>
+
+                      <MsgBoxCard>
+                        Anamnesis :{" "}
+                        <MsgBoxCard week>{row.Anamnesis} </MsgBoxCard>{" "}
+                      </MsgBoxCard>
+                      <MsgBoxCard>
+                        Observaciones :{" "}
+                        <MsgBoxCard week>{row.Observation}</MsgBoxCard>
+                      </MsgBoxCard>
+                      <MsgBoxCard>
+                        Diagnostico :{" "}
+                        <MsgBoxCard week>{row.Diagnosis}</MsgBoxCard>{" "}
+                      </MsgBoxCard>
+                      <MsgBoxCard>
+                        Tratamiento :{" "}
+                        <MsgBoxCard week>{row.Treatment}</MsgBoxCard>{" "}
+                      </MsgBoxCard>
+
+                      <MsgBoxCard>
+                        RUT :{" "}
+                        <MsgBoxCard week>
+                          {row.Veterinarian.IdentityCard}
+                        </MsgBoxCard>
+                      </MsgBoxCard>
+                      <MsgBoxCard>
+                        Teléfono :{" "}
+                        <MsgBoxCard week>
+                          {row.Veterinarian.Telephone}
+                        </MsgBoxCard>
+                      </MsgBoxCard>
+                      <Line />
+                      {row.LstProducts.map((row1, i) => (
+                        <>
+                          <MsgBoxCard>
+                            Nombre Producto :{" "}
+                            <MsgBoxCard week>{row1.Name} </MsgBoxCard>
+                          </MsgBoxCard>
+                          <MsgBoxCard>
+                            Descripción :{" "}
+                            <MsgBoxCard week>{row1.Description}</MsgBoxCard>
+                          </MsgBoxCard>
+                          <MsgBoxCard>
+                            Precio : <MsgBoxCard week>{row1.Price} </MsgBoxCard>
+                          </MsgBoxCard>
+                          <Line />
+                        </>
+                      ))}
+                    </Card>
                   </>
                 ))}
-              </StyledFormArea>
+              </StyledFormAreaCard>
             )}
           </Formik>
+          <StyledButton
+            google
+            // onPress={handleSubmit}
+          >
+            <ButtonText>Descargar Ficha en PDF</ButtonText>
+          </StyledButton>
         </InnerContainer>
       </StyledContainer>
     </KeyboardAvoidingWrapper>

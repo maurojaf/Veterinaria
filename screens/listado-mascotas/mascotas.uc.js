@@ -23,7 +23,7 @@ import {
   StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View, Picker } from "react-native";
+import { View, Picker, ActivityIndicator } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
@@ -40,6 +40,7 @@ const Mascotas = ({ navigation }) => {
   const [mascotasSelect, setMascotasSelect] = useState([]);
   const [pesoMascota, setPesoMascota] = useState(null);
   const [idMascota, setIdMascota] = useState(null);
+  const [loading, setLoading] = useState(false);
   // const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [edad, setEdad] = useState("");
   const [especie, setEspecie] = useState("");
@@ -106,8 +107,7 @@ const Mascotas = ({ navigation }) => {
     setEspecie("");
     setRaza("");
     setIdMascota(null);
-  };
-  const handleSeleccionarMascota = async () => {
+    setLoading(true);
     const url = urlGlobal + "api/v1/Client/pets";
     let configAxios = {
       headers: {
@@ -123,7 +123,7 @@ const Mascotas = ({ navigation }) => {
           console.log("error al obtener información");
         } else {
           response.data.Result.Value.map((row, i) => {
-            if (row.Name === mascotas) {
+            if (row.Name === value) {
               AsyncStorage.setItem("idMascota", JSON.stringify(row.Id));
 
               setIdMascota(row.Id);
@@ -144,10 +144,13 @@ const Mascotas = ({ navigation }) => {
             // }
           });
         }
+        setLoading(false);
       })
       .catch((error) => {
         setDisabledDetalleAtención(true);
+        setLoading(false);
         if (error.response.status === 401) {
+          setLoading(false);
           clearLogin();
         }
       });
@@ -171,7 +174,13 @@ const Mascotas = ({ navigation }) => {
               navigation.navigate("FichaClinica");
             }}
           >
-            {({ handleChange, handleBlur, handleSubmit, values }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              isSubmitting,
+              values,
+            }) => (
               <StyledFormArea>
                 <MsgBox>Selecciona una de tus mascotas </MsgBox>
                 <StyledPicker
@@ -190,9 +199,9 @@ const Mascotas = ({ navigation }) => {
                     />
                   ))}
                 </StyledPicker>
-                <StyledButton onPress={handleSeleccionarMascota}>
+                {/* <StyledButton onPress={handleSeleccionarMascota}>
                   <ButtonText>Seleccionar Mascota </ButtonText>
-                </StyledButton>
+                </StyledButton> */}
                 <Line />
                 <SubTitle>Nombre : {mascotas}</SubTitle>
                 <SubTitle>Id Mascota : {idMascota}</SubTitle>
@@ -203,13 +212,17 @@ const Mascotas = ({ navigation }) => {
                 <Line />
                 <StyledButton
                   disabled={disabledDetalleAtención}
-                  google
+                  google={!disabledDetalleAtención}
                   onPress={handleSubmit}
                 >
                   <ButtonText>
-                    {!disabledDetalleAtención
-                      ? "Obtener Detalles de Atención Médica de " + mascotas
-                      : "Selecciona a una mascota"}
+                    {!disabledDetalleAtención ? (
+                      "Obtener Detalles de Atención Médica de " + mascotas
+                    ) : loading ? (
+                      <ActivityIndicator size="large" color={primary} />
+                    ) : (
+                      "Selecciona una opcion "
+                    )}
                   </ButtonText>
                 </StyledButton>
               </StyledFormArea>

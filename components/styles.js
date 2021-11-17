@@ -60,7 +60,10 @@ export const StyledPicker = styled.Picker`
 `;
 
 export const StyledFormArea = styled.View`
-  width: 90%;
+  width: 100%;
+`;
+export const StyledFormAreaCard = styled.View`
+  width: 110%;
 `;
 
 export const StyledTextInput = styled.TextInput`
@@ -128,13 +131,31 @@ export const ButtonText = styled.Text`
 
 export const MsgBox = styled.Text`
   text-align: center;
-  font-size: 13px;
+  font-size: 18px;
   color: ${(props) =>
     props.type == 200
       ? green
       : props.type === 500 || props.type === 404 || props.type === 401
       ? red
       : tertiary};
+`;
+export const MsgBoxCard = styled.Text`
+  text-align: left;
+  font-size: 18px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: ${(props) =>
+    props.type == 200
+      ? green
+      : props.type === 500 || props.type === 404 || props.type === 401
+      ? red
+      : tertiary};
+  ${(props) =>
+    props.week == true &&
+    `
+      font-weight: 400;
+      `}
 `;
 
 export const Line = styled.View`
