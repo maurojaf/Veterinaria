@@ -72,7 +72,7 @@ const Login = ({ navigation }) => {
           if (response.status !== 200) {
             HandleMessage("Error al Iniciar Sesión", response.status);
           } else {
-            navigation.navigate("Mascotas");
+            navigation.navigate("Bienvenido");
             PersistLogin(response.data.Result.Value.Token, response.status);
           }
           setSubmitting(false);
@@ -231,16 +231,6 @@ const Login = ({ navigation }) => {
                 )}
 
                 <Line />
-                {/* <StyledButton google={true} onPress={handleSubmit}>
-                <Fontisto name="google" color={primary} size={25} />
-                <ButtonText google> Iniciar sesión con Google </ButtonText>
-              </StyledButton> */}
-                {/* <ExtraView>
-                  <ExtraText>No tengo cuenta? </ExtraText>
-                  <TextLink>
-                    <TextLinkContent>Crear Cuenta</TextLinkContent>
-                  </TextLink>
-                </ExtraView> */}
               </StyledFormArea>
             )}
           </Formik>

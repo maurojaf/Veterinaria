@@ -98,6 +98,11 @@ export const RightIcon = styled.TouchableOpacity`
   position: absolute;
   z-index: 1;
 `;
+export const RightIconWelcome = styled.TouchableOpacity`
+  right: 40px;
+  position: absolute;
+  z-index: 1;
+`;
 
 export const StyledButton = styled.TouchableOpacity`
   padding: 15px;
@@ -112,6 +117,13 @@ export const StyledButton = styled.TouchableOpacity`
     props.google == true &&
     `
       background-color: ${green};
+      flex-direction: row;
+      justify-content : center;
+      `}
+  ${(props) =>
+    props.usuario == true &&
+    `
+      background-color: ${brand};
       flex-direction: row;
       justify-content : center;
       `}

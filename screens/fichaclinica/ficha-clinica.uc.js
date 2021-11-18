@@ -122,6 +122,45 @@ const FichaClinica = ({ navigation }) => {
       });
   };
 
+  const DescargarFichaClinica = async () => {
+    const url = await AsyncStorage.getItem("urlGlobal");
+    const token = await AsyncStorage.getItem("token");
+    const idString = await AsyncStorage.getItem("idMascota");
+    const urlObtenida =
+      url +
+      "/api/v1/Client/pets/" +
+      parseInt(idString) +
+      "/medicalconsultationpdf";
+    let configAxios = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+
+    axios
+      .get(urlObtenida, configAxios)
+      .then((response) => {
+        if (response.status !== 200) {
+          console.log("error al obtener información");
+        } else {
+          const data = [];
+          if (
+            response.data.Result.Value.Mensaje ===
+            "Mascota sin historial de consultas."
+          ) {
+            setMensaje(response.data.Result.Value.Mensaje);
+          } else {
+            console.log(response);
+          }
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     getIdFromMascotas();
   }, []);
@@ -208,10 +247,7 @@ const FichaClinica = ({ navigation }) => {
               </StyledFormAreaCard>
             )}
           </Formik>
-          <StyledButton
-            google
-            // onPress={handleSubmit}
-          >
+          <StyledButton google onPress={DescargarFichaClinica}>
             <ButtonText>Descargar Ficha en PDF</ButtonText>
           </StyledButton>
         </InnerContainer>
