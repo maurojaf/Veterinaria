@@ -1,34 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyledContainer,
   InnerContainer,
-  PageLogo,
-  PageTitle,
   SubTitle,
-  StyledFormArea,
   StyledFormAreaCard,
-  LeftIcon,
-  StyledInputLabel,
-  StyledTextInput,
-  RightIcon,
   StyledButton,
   ButtonText,
   MsgBox,
   MsgBoxCard,
   Line,
   Colors,
-  ExtraText,
-  ExtraView,
-  TextLink,
-  TextLinkContent,
-  StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View, Picker } from "react-native";
+import { View, Picker, Platform, ActivityIndicator } from "react-native";
 import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import * as Permissions from "expo-permissions";
+import * as Sharing from "expo-sharing";
+import { CredentialsContext } from "../../components/credentials-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
@@ -43,6 +36,10 @@ const FichaClinica = ({ navigation }) => {
   const [mensaje, setMensaje] = useState("");
   const [nombreMascota, setNombreMascota] = useState("");
   const [dataObtenida, setDataObtenida] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const { storedCredentials, setStoredCredentials } =
+    useContext(CredentialsContext);
 
   const getIdFromMascotas = async () => {
     const url = await AsyncStorage.getItem("urlGlobal");
@@ -52,6 +49,13 @@ const FichaClinica = ({ navigation }) => {
     setUrlGlobal(url);
     setTokenState(token);
     ObtenerConsultasMedicas(url, token, idString);
+  };
+  const clearLogin = async () => {
+    AsyncStorage.removeItem("token")
+      .then(() => {
+        setStoredCredentials("");
+      })
+      .catch((error) => console.log(error));
   };
 
   const ObtenerConsultasMedicas = async (
@@ -119,10 +123,12 @@ const FichaClinica = ({ navigation }) => {
       })
       .catch((error) => {
         console.log(error);
+        clearLogin();
       });
   };
 
   const DescargarFichaClinica = async () => {
+    setLoading(true);
     const url = await AsyncStorage.getItem("urlGlobal");
     const token = await AsyncStorage.getItem("token");
     const idString = await AsyncStorage.getItem("idMascota");
@@ -131,34 +137,61 @@ const FichaClinica = ({ navigation }) => {
       "/api/v1/Client/pets/" +
       parseInt(idString) +
       "/medicalconsultationpdf";
+
     let configAxios = {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
+        "Content-Type": "application/pdf",
+        Accept: "application/pdf",
       },
     };
 
     axios
-      .get(urlObtenida, configAxios)
+      .get(urlObtenida, configAxios, { responseType: "application/pdf" })
       .then((response) => {
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
-          const data = [];
-          if (
-            response.data.Result.Value.Mensaje ===
-            "Mascota sin historial de consultas."
-          ) {
-            setMensaje(response.data.Result.Value.Mensaje);
+          if (Platform.OS === "ios") {
+            const downloadedFile = FileSystem.downloadAsync(
+              urlObtenida,
+              FileSystem.documentDirectory +
+                "FichaClinica" +
+                nombreMascota +
+                ".pdf"
+            )
+              .then(({ uri }) => {
+                const UTI = "public.pdf";
+                const shareResult = Sharing.shareAsync(uri, { UTI });
+                console.log("Finished downloading to ", uri);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+            setLoading(false);
           } else {
-            console.log(response);
+            FileSystem.downloadAsync(
+              urlObtenida,
+              FileSystem.documentDirectory +
+                "FichaClinica" +
+                nombreMascota +
+                ".pdf"
+            )
+              .then(({ uri }) => {
+                console.log("Finished downloading to ", uri);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+            setLoading(false);
           }
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
       });
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -184,9 +217,9 @@ const FichaClinica = ({ navigation }) => {
                 <Line />
                 {dataObtenida.map((row, i) => (
                   <>
-                    <Card>
-                      <Card.Title>
-                        <MsgBoxCard>
+                    <Card key={i}>
+                      <Card.Title key={i}>
+                        <MsgBoxCard key={i}>
                           Veterinario : {row.Veterinarian.NameVeterinario}
                         </MsgBoxCard>
                       </Card.Title>
@@ -248,7 +281,11 @@ const FichaClinica = ({ navigation }) => {
             )}
           </Formik>
           <StyledButton google onPress={DescargarFichaClinica}>
-            <ButtonText>Descargar Ficha en PDF</ButtonText>
+            {loading ? (
+              <ActivityIndicator size="large" color={primary} />
+            ) : (
+              <ButtonText>Descargar Ficha en PDF</ButtonText>
+            )}
           </StyledButton>
         </InnerContainer>
       </StyledContainer>

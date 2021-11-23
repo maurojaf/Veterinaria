@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import {
   StyledContainer,
   InnerContainer,
-  PageLogo,
+  UserImage,
   PageTitle,
   SubTitle,
   StyledFormArea,
@@ -23,7 +23,7 @@ import {
   StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View, Picker, ActivityIndicator } from "react-native";
+import { View, Picker, ActivityIndicator, Image } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
@@ -39,6 +39,8 @@ const Usuario = ({ navigation }) => {
   const [telefono, setTelefono] = useState("");
   const [user, setUser] = useState("");
   const [observaciones, setObservaciones] = useState("");
+  const [password, setPassword] = useState("");
+  const [imagen, setImagen] = useState("");
   const [urlGlobal, setUrlGlobal] = useState("");
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +64,7 @@ const Usuario = ({ navigation }) => {
   };
 
   const ObtenerUsuario = async (urlObtenida, tokenObtenido) => {
-    const url = urlObtenida + "api/v1/Client/myprofile";
+    const url = urlObtenida + "api/v1/Client/get";
     let configAxios = {
       headers: {
         Authorization: `Bearer ${tokenObtenido}`,
@@ -76,11 +78,12 @@ const Usuario = ({ navigation }) => {
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
-          setNombre(response.data.Result.Value.Client.Name);
-          setMail(response.data.Result.Value.Client.Email);
-          setTelefono(response.data.Result.Value.Client.Telephone);
+          setNombre(response.data.Result.Value.Name);
+          setMail(response.data.Result.Value.Email);
+          setTelefono(response.data.Result.Value.Telephone);
           setUser(response.data.Result.Value.LoginUser);
-          setObservaciones(response.data.Result.Value.Client.Observation);
+          setObservaciones(response.data.Result.Value.Observation);
+          setImagen(response.data.Result.Value.Image);
         }
       })
       .catch((error) => {
@@ -128,6 +131,7 @@ const Usuario = ({ navigation }) => {
                 />
                 <StyledInputLabel>Usuario Aplicación</StyledInputLabel>
                 <StyledTextInput
+                  disable
                   value={user}
                   onChangeText={(itemValue) => setUser(String(itemValue))}
                 />
@@ -138,6 +142,18 @@ const Usuario = ({ navigation }) => {
                     setObservaciones(String(itemValue))
                   }
                 />
+                <StyledInputLabel>Imagen registrada</StyledInputLabel>
+                <UserImage resizeMode="cover" source={{ uri: imagen }} />
+                {/* <Image
+                  style={{
+                    width: 200,
+                    height: 200,
+                    resizeMode: "cover",
+                    borderWidth: 1,
+                    borderColor: "red",
+                  }}
+                  source={{ uri: imagen }}
+                /> */}
                 <Line />
                 <StyledButton google onPress={clearLogin}>
                   <ButtonText>Guardar Datos Editados</ButtonText>

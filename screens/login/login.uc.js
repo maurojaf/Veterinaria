@@ -231,6 +231,16 @@ const Login = ({ navigation }) => {
                 )}
 
                 <Line />
+                <StyledButton google={true} onPress={handleSubmit}>
+                  <Fontisto name="google" color={primary} size={25} />
+                  <ButtonText google> Iniciar sesión con Google </ButtonText>
+                </StyledButton>
+                <ExtraView>
+                  <ExtraText>No recuerdas tu Contraseña? </ExtraText>
+                  <TextLink>
+                    <TextLinkContent>Recuperar Cuenta</TextLinkContent>
+                  </TextLink>
+                </ExtraView>
               </StyledFormArea>
             )}
           </Formik>

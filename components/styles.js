@@ -34,6 +34,12 @@ export const PageLogo = styled.Image`
   height: 140px;
 `;
 
+export const UserImage = styled.Image`
+  width: 150px;
+  height: 200px;
+  border-width: 1;
+`;
+
 export const PageTitle = styled.Text`
   font-size: 30px;
   text-align: center;
