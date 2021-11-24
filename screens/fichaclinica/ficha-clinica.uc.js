@@ -164,13 +164,14 @@ const FichaClinica = ({ navigation }) => {
                 const UTI = "public.pdf";
                 const shareResult = Sharing.shareAsync(uri, { UTI });
                 console.log("Finished downloading to ", uri);
+                setLoading(false);
               })
               .catch((error) => {
+                setLoading(false);
                 console.error(error);
               });
-            setLoading(false);
           } else {
-            FileSystem.downloadAsync(
+            const downloadedFile = FileSystem.downloadAsync(
               urlObtenida,
               FileSystem.documentDirectory +
                 "FichaClinica" +
@@ -178,12 +179,15 @@ const FichaClinica = ({ navigation }) => {
                 ".pdf"
             )
               .then(({ uri }) => {
+                const UTI = "public.pdf";
+                const shareResult = Sharing.shareAsync(uri, { UTI });
                 console.log("Finished downloading to ", uri);
+                setLoading(false);
               })
               .catch((error) => {
+                setLoading(false);
                 console.error(error);
               });
-            setLoading(false);
           }
         }
       })
@@ -191,7 +195,6 @@ const FichaClinica = ({ navigation }) => {
         setLoading(false);
         console.log(error);
       });
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -280,14 +283,15 @@ const FichaClinica = ({ navigation }) => {
               </StyledFormAreaCard>
             )}
           </Formik>
-          <StyledButton google onPress={DescargarFichaClinica}>
-            {loading ? (
-              <ActivityIndicator size="large" color={primary} />
-            ) : (
-              <ButtonText>Descargar Ficha en PDF</ButtonText>
-            )}
-          </StyledButton>
         </InnerContainer>
+        <Line />
+        <StyledButton google onPress={DescargarFichaClinica}>
+          {loading ? (
+            <ActivityIndicator size="large" color={primary} />
+          ) : (
+            <ButtonText>Descargar Ficha en PDF</ButtonText>
+          )}
+        </StyledButton>
       </StyledContainer>
     </KeyboardAvoidingWrapper>
   );

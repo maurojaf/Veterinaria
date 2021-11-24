@@ -7,20 +7,12 @@ import {
   PageTitle,
   SubTitle,
   StyledFormArea,
-  LeftIcon,
-  StyledInputLabel,
-  StyledTextInput,
   RightIconWelcome,
   StyledButton,
   ButtonText,
   MsgBox,
   Line,
   Colors,
-  ExtraText,
-  ExtraView,
-  TextLink,
-  TextLinkContent,
-  StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
 import { View, Picker, ActivityIndicator } from "react-native";
@@ -36,6 +28,7 @@ const { brand, darklight, primary } = Colors;
 const Bienvenido = ({ navigation }) => {
   const [urlGlobal, setUrlGlobal] = useState("");
   const [token, setToken] = useState("");
+  const [nombreUsuario, setNombreUsuario] = useState("");
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
@@ -52,12 +45,39 @@ const Bienvenido = ({ navigation }) => {
     console.log(token);
     setUrlGlobal(url);
     setToken(token);
+    ObtenerNombreusuario(url, token);
   };
   const IrUsuario = () => {
     navigation.navigate("Usuario");
   };
   const IrMascotas = () => {
     navigation.navigate("Mascotas");
+  };
+  const ObtenerNombreusuario = async (urlObtenida, tokenObtenido) => {
+    const url = urlObtenida + "api/v1/Client/get";
+    let configAxios = {
+      headers: {
+        Authorization: `Bearer ${tokenObtenido}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+    axios
+      .get(url, configAxios)
+      .then((response) => {
+        if (response.status !== 200) {
+          console.log("error al obtener información");
+        } else {
+          setNombreUsuario(response.data.Result.Value.Name);
+        }
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          clearLogin();
+        } else {
+          console.log(error);
+        }
+      });
   };
 
   useEffect(() => {
@@ -69,7 +89,7 @@ const Bienvenido = ({ navigation }) => {
       <StyledContainer>
         <StatusBar style="dark" />
         <InnerContainer>
-          <SubTitle>Bienvenido Usuario </SubTitle>
+          <SubTitle>Bienvenido {nombreUsuario} </SubTitle>
           <Formik initialValues={{ mascota: "" }} onSubmit={(values) => {}}>
             {({
               handleChange,
@@ -81,16 +101,17 @@ const Bienvenido = ({ navigation }) => {
               <StyledFormArea>
                 <MsgBox>Selecciona una Opción </MsgBox>
                 <Line />
-                <StyledButton usuario onPress={IrUsuario}>
-                  <ButtonText>Información de Usuario</ButtonText>
-                  <RightIconWelcome>
-                    <Octicons name={"person"} size={25} color={primary} />
-                  </RightIconWelcome>
-                </StyledButton>
+
                 <StyledButton google onPress={IrMascotas}>
                   <ButtonText>Información de Mascotas</ButtonText>
                   <RightIconWelcome>
                     <Octicons name={"octoface"} size={25} color={primary} />
+                  </RightIconWelcome>
+                </StyledButton>
+                <StyledButton usuario onPress={IrUsuario}>
+                  <ButtonText>Información de Usuario</ButtonText>
+                  <RightIconWelcome>
+                    <Octicons name={"person"} size={25} color={primary} />
                   </RightIconWelcome>
                 </StyledButton>
                 <StyledButton onPress={clearLogin}>

@@ -36,8 +36,10 @@ export const PageLogo = styled.Image`
 
 export const UserImage = styled.Image`
   width: 150px;
-  height: 200px;
-  border-width: 1;
+  height: 150px;
+  border-radius: 75;
+  overflow: hidden;
+  border-color: ${tertiary};
 `;
 
 export const PageTitle = styled.Text`
@@ -57,11 +59,10 @@ export const SubTitle = styled.Text`
 `;
 
 export const StyledPicker = styled.Picker`
-  font-size: 10px;
+  font-size: 30px;
   margin-vertical: 1px;
-  margin-bottom: 1px;
+  margin-bottom: 15px;
   letter-spacing: 1px;
-  font-weight: bold;
   color: ${tertiary};
 `;
 
@@ -89,6 +90,11 @@ export const StyledInputLabel = styled.Text`
   color: ${tertiary};
   font-size: 13px;
   text-align: left;
+`;
+export const StyledInputLabelMensaje = styled.Text`
+  color: ${green};
+  font-size: 13px;
+  text-align: center;
 `;
 
 export const LeftIcon = styled.View`
@@ -118,6 +124,7 @@ export const StyledButton = styled.TouchableOpacity`
   border-radius: 5px;
   margin-vertical: 5px;
   height: 60px;
+  flex-direction: row;
 
   ${(props) =>
     props.google == true &&

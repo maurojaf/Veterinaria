@@ -40,6 +40,7 @@ const Login = ({ navigation }) => {
   const [messageType, setMessageType] = useState(0);
   const [selectVeterinaria, setSelectVeterinaria] = useState([]);
   const [urlLoginConcatenado, setUrlLoginConcatenado] = useState("");
+  const [loading, setLoading] = useState(false);
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
@@ -60,10 +61,12 @@ const Login = ({ navigation }) => {
       });
   };
   const HandleLogin = (credentials, setSubmitting) => {
+    setLoading(true);
     HandleMessage(null);
     if (urlLoginConcatenado === "") {
       HandleMessage("Seleccione una Veterinaria");
       setSubmitting(false);
+      setLoading(false);
     } else {
       const url = urlLoginConcatenado + "api/v1/LoginClient/LoginValidate";
       axios
@@ -71,15 +74,18 @@ const Login = ({ navigation }) => {
         .then((response) => {
           if (response.status !== 200) {
             HandleMessage("Error al Iniciar Sesión", response.status);
+            setLoading(false);
           } else {
             navigation.navigate("Bienvenido");
             PersistLogin(response.data.Result.Value.Token, response.status);
           }
           setSubmitting(false);
+          setLoading(false);
         })
         .catch((error) => {
           console.log(error);
           setSubmitting(false);
+          setLoading(false);
           HandleMessage("Error de conexión");
         });
     }
@@ -89,6 +95,7 @@ const Login = ({ navigation }) => {
     setMessageType(type);
   };
   const HandleSelect = () => {
+    setLoading(true);
     HandleMessage(null);
     const url =
       "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
@@ -98,6 +105,7 @@ const Login = ({ navigation }) => {
         // console.log(response.data.Result.Value.Token);
         if (response.status !== 200) {
           HandleMessage("Error al Obtener Información Sesión", response.status);
+          setLoading(false);
         } else {
           const data = [];
           response.data.Result.Value.map((row, i) => {
@@ -108,14 +116,17 @@ const Login = ({ navigation }) => {
             data.push(ds_json);
           });
           setSelectVeterinaria(data);
+          setLoading(false);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
         HandleMessage("Error de conexión");
       });
   };
   const handleChangeVeterinaria = async (value) => {
+    setLoading(true);
     setVeterinaria(value);
     const url =
       "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
@@ -123,6 +134,7 @@ const Login = ({ navigation }) => {
       .get(url)
       .then((response) => {
         if (response.status !== 200) {
+          setLoading(false);
           HandleMessage(
             "Error al Obtener Información de la Veterinaria",
             response.status
@@ -136,10 +148,12 @@ const Login = ({ navigation }) => {
                   : AsyncStorage.setItem("urlGlobal", row2.Url);
               });
             }
+            setLoading(false);
           });
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.log(error);
         HandleMessage("Error de conexión");
       });
@@ -219,7 +233,7 @@ const Login = ({ navigation }) => {
                   setHidePassword={setHidePassword}
                 />
                 <MsgBox type={messageType}>{message}</MsgBox>
-                {!isSubmitting && (
+                {/* {!isSubmitting && (
                   <StyledButton onPress={handleSubmit}>
                     <ButtonText>Iniciar Sesión </ButtonText>
                   </StyledButton>
@@ -227,6 +241,16 @@ const Login = ({ navigation }) => {
                 {isSubmitting && (
                   <StyledButton onPress={handleSubmit} disabled={true}>
                     <ActivityIndicator size="large" color={primary} />
+                  </StyledButton>
+                )} */}
+                {loading ? (
+                  <StyledButton onPress={handleSubmit} disabled={true}>
+                    <ActivityIndicator size="large" color={primary} />
+                  </StyledButton>
+                ) : (
+                  <StyledButton onPress={handleSubmit}>
+                    <Fontisto name="google" color={primary} size={25} />
+                    <ButtonText google>Iniciar Sesión </ButtonText>
                   </StyledButton>
                 )}
 
@@ -236,7 +260,7 @@ const Login = ({ navigation }) => {
                   <ButtonText google> Iniciar sesión con Google </ButtonText>
                 </StyledButton>
                 <ExtraView>
-                  <ExtraText>No recuerdas tu Contraseña? </ExtraText>
+                  <ExtraText>No recuerdas tus datos? </ExtraText>
                   <TextLink>
                     <TextLinkContent>Recuperar Cuenta</TextLinkContent>
                   </TextLink>

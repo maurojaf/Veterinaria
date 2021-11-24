@@ -9,6 +9,7 @@ import {
   StyledFormArea,
   LeftIcon,
   StyledInputLabel,
+  StyledInputLabelMensaje,
   StyledTextInput,
   RightIconWelcome,
   StyledButton,
@@ -35,6 +36,7 @@ const { brand, darklight, primary } = Colors;
 
 const Usuario = ({ navigation }) => {
   const [nombre, setNombre] = useState("");
+  const [idUsuario, setIdUsuario] = useState(0);
   const [mail, setMail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [user, setUser] = useState("");
@@ -43,6 +45,7 @@ const Usuario = ({ navigation }) => {
   const [imagen, setImagen] = useState("");
   const [urlGlobal, setUrlGlobal] = useState("");
   const [token, setToken] = useState("");
+  const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
@@ -57,12 +60,10 @@ const Usuario = ({ navigation }) => {
   const GetUrlGlobal = async () => {
     const url = await AsyncStorage.getItem("urlGlobal");
     const token = await AsyncStorage.getItem("token");
-    console.log(token);
     setUrlGlobal(url);
     setToken(token);
     ObtenerUsuario(url, token);
   };
-
   const ObtenerUsuario = async (urlObtenida, tokenObtenido) => {
     const url = urlObtenida + "api/v1/Client/get";
     let configAxios = {
@@ -78,6 +79,7 @@ const Usuario = ({ navigation }) => {
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
+          setIdUsuario(response.data.Result.Value.Id);
           setNombre(response.data.Result.Value.Name);
           setMail(response.data.Result.Value.Email);
           setTelefono(response.data.Result.Value.Telephone);
@@ -89,6 +91,54 @@ const Usuario = ({ navigation }) => {
       .catch((error) => {
         if (error.response.status === 401) {
           clearLogin();
+        } else {
+          console.log(error);
+        }
+      });
+  };
+  const GuardarDatosModificadosUsuario = async (
+    id,
+    name,
+    email,
+    telephone,
+    observation
+  ) => {
+    setLoading(true);
+    setMensaje("");
+    const urlObtenida = await AsyncStorage.getItem("urlGlobal");
+    const tokenObtenido = await AsyncStorage.getItem("token");
+    const url = urlObtenida + "api/v1/Client/put";
+    let configAxios = {
+      headers: {
+        Authorization: `Bearer ${tokenObtenido}`,
+        "Content-Type": "application/json",
+      },
+    };
+    let dataEnviada = {
+      Id: id,
+      Name: name,
+      Email: email,
+      Telephone: telephone,
+      Observation: observation,
+    };
+    axios
+      .put(url, dataEnviada, configAxios)
+      .then((response) => {
+        if (response.status !== 200) {
+          setLoading(false);
+          setMensaje("error al enviar información");
+        } else {
+          setLoading(false);
+          setMensaje(response.data.Result.Value.Mensaje);
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        setMensaje("Error al modificar datos");
+        if (error.response.status === 401) {
+          clearLogin();
+        } else {
+          console.log(error.response);
         }
       });
   };
@@ -124,7 +174,7 @@ const Usuario = ({ navigation }) => {
                   value={mail}
                   onChangeText={(itemValue) => setMail(String(itemValue))}
                 />
-                <StyledInputLabel>Telefono</StyledInputLabel>
+                <StyledInputLabel>Teléfono</StyledInputLabel>
                 <StyledTextInput
                   value={telefono}
                   onChangeText={(itemValue) => setTelefono(String(itemValue))}
@@ -142,24 +192,36 @@ const Usuario = ({ navigation }) => {
                     setObservaciones(String(itemValue))
                   }
                 />
-                <StyledInputLabel>Imagen registrada</StyledInputLabel>
+                <StyledInputLabel>Foto</StyledInputLabel>
                 <UserImage resizeMode="cover" source={{ uri: imagen }} />
-                {/* <Image
-                  style={{
-                    width: 200,
-                    height: 200,
-                    resizeMode: "cover",
-                    borderWidth: 1,
-                    borderColor: "red",
-                  }}
-                  source={{ uri: imagen }}
-                /> */}
                 <Line />
-                <StyledButton google onPress={clearLogin}>
-                  <ButtonText>Guardar Datos Editados</ButtonText>
-                  <RightIconWelcome>
-                    <Octicons name={"checklist"} size={25} color={primary} />
-                  </RightIconWelcome>
+                <StyledInputLabelMensaje>{mensaje}</StyledInputLabelMensaje>
+                <StyledButton
+                  usuario
+                  onPress={() => {
+                    GuardarDatosModificadosUsuario(
+                      idUsuario,
+                      nombre,
+                      mail,
+                      telefono,
+                      observaciones
+                    );
+                  }}
+                >
+                  {loading ? (
+                    <ButtonText>Guardando Datos...</ButtonText>
+                  ) : (
+                    <>
+                      <ButtonText>Guardar Datos Editados</ButtonText>
+                      <RightIconWelcome>
+                        <Octicons
+                          name={"checklist"}
+                          size={25}
+                          color={primary}
+                        />
+                      </RightIconWelcome>
+                    </>
+                  )}
                 </StyledButton>
                 <StyledButton onPress={clearLogin}>
                   <ButtonText>Cerrar Sesión</ButtonText>

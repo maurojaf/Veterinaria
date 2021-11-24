@@ -4,6 +4,7 @@ import { Colors } from "../components/styles";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { CredentialsContext } from "../components/credentials-context";
+import { Platform } from "react-native";
 import Login from "../screens/login/login.uc";
 import Bienvenido from "../screens/bienvenido/bienvenido.uc";
 import Mascotas from "../screens/listado-mascotas/mascotas.uc";
@@ -20,6 +21,8 @@ const RootStack = () => {
         <NavigationContainer>
           <Stack.Navigator
             screenOptions={{
+              headerShown: true,
+              headerShadowVisible: false,
               headerStyle: {
                 backgroundColor: "transparent",
               },

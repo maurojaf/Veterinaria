@@ -67,6 +67,7 @@ const Mascotas = ({ navigation }) => {
     getSelectMascotas(url, token);
   };
   const getSelectMascotas = async (urlObtenida, tokenObtenido) => {
+    setLoading(true);
     const url = urlObtenida + "api/v1/Client/pets";
     let configAxios = {
       headers: {
@@ -90,9 +91,11 @@ const Mascotas = ({ navigation }) => {
             data.push(ds_json);
           });
           setMascotasSelect(data);
+          setLoading(false);
         }
       })
       .catch((error) => {
+        setLoading(false);
         if (error.response.status === 401) {
           clearLogin();
         }
@@ -135,13 +138,6 @@ const Mascotas = ({ navigation }) => {
               setDisabledDetalleAtención(false);
               return "ok";
             }
-            // else {
-            //   setPesoMascota(null);
-            //   setFechaNacimiento("");
-            //   setEdad("");
-            //   setEspecie("");
-            //   setRaza("");
-            // }
           });
         }
         setLoading(false);
@@ -158,7 +154,6 @@ const Mascotas = ({ navigation }) => {
 
   useEffect(() => {
     GetUrlGlobal();
-    // getSelectMascotas();
   }, []);
 
   return (
@@ -212,7 +207,7 @@ const Mascotas = ({ navigation }) => {
                 <Line />
                 <StyledButton
                   disabled={disabledDetalleAtención}
-                  google={!disabledDetalleAtención}
+                  google
                   onPress={handleSubmit}
                 >
                   <ButtonText>
@@ -221,7 +216,7 @@ const Mascotas = ({ navigation }) => {
                     ) : loading ? (
                       <ActivityIndicator size="large" color={primary} />
                     ) : (
-                      "Selecciona una opcion "
+                      "Selecciona una mascota antes de continuar "
                     )}
                   </ButtonText>
                 </StyledButton>
