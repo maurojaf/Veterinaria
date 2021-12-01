@@ -11,6 +11,7 @@ import {
   StyledInputLabel,
   StyledTextInput,
   RightIcon,
+  RightIconLabel,
   StyledButton,
   ButtonText,
   MsgBox,
@@ -128,6 +129,7 @@ const Mascotas = ({ navigation }) => {
           response.data.Result.Value.map((row, i) => {
             if (row.Name === value) {
               AsyncStorage.setItem("idMascota", JSON.stringify(row.Id));
+              AsyncStorage.setItem("nombreMascota", value);
 
               setIdMascota(row.Id);
               setPesoMascota(row.Weight);
@@ -162,6 +164,9 @@ const Mascotas = ({ navigation }) => {
         <StatusBar style="dark" />
         <InnerContainer>
           <SubTitle>Listado de Mascotas</SubTitle>
+          <RightIconLabel>
+            <Ionicons name={"paw"} size={30} color={darklight} />
+          </RightIconLabel>
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {

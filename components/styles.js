@@ -59,10 +59,10 @@ export const SubTitle = styled.Text`
 `;
 
 export const StyledPicker = styled.Picker`
-  font-size: 30px;
-  margin-vertical: 1px;
+  margin-vertical: 15px;
   margin-bottom: 15px;
   letter-spacing: 1px;
+  font-size: 30px;
   color: ${tertiary};
 `;
 
@@ -72,6 +72,9 @@ export const StyledFormArea = styled.View`
 export const StyledFormAreaCard = styled.View`
   width: 110%;
 `;
+export const StyledFormAreaImage = styled.View`
+  align-items: center;
+`;
 
 export const StyledTextInput = styled.TextInput`
   background-color: ${secondary};
@@ -79,7 +82,7 @@ export const StyledTextInput = styled.TextInput`
   padding-left: 55px;
   padding-right: 5px;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 20px;
   height: 60px;
   margin-vertical: 3px;
   margin-bottom: 10px;
@@ -103,9 +106,15 @@ export const LeftIcon = styled.View`
   position: absolute;
   z-index: 1;
 `;
+export const LeftIconInput = styled.View`
+  left: 15px;
+  top: 15px;
+  position: absolute;
+  z-index: 1;
+`;
 
 export const RightIcon = styled.TouchableOpacity`
-  right: 15px;
+  right: 10px;
   top: 30px;
   position: absolute;
   z-index: 1;
@@ -113,6 +122,19 @@ export const RightIcon = styled.TouchableOpacity`
 export const RightIconWelcome = styled.TouchableOpacity`
   right: 40px;
   position: absolute;
+  z-index: 1;
+`;
+
+export const RightIconTextBox = styled.TouchableOpacity`
+  right: 10px;
+  position: absolute;
+  top: 15px;
+  z-index: 1;
+`;
+export const RightIconLabel = styled.TouchableOpacity`
+  right: 30px;
+  position: absolute;
+  top: -5px;
   z-index: 1;
 `;
 

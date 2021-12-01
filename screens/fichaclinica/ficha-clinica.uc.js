@@ -9,6 +9,7 @@ import {
   ButtonText,
   MsgBox,
   MsgBoxCard,
+  RightIconLabel,
   Line,
   Colors,
 } from "../../components/styles";
@@ -18,8 +19,7 @@ import { Card, ListItem, Button, Icon } from "react-native-elements";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import * as FileSystem from "expo-file-system";
-import * as MediaLibrary from "expo-media-library";
-import * as Permissions from "expo-permissions";
+import { StorageAccessFramework } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { CredentialsContext } from "../../components/credentials-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,7 +29,7 @@ import axios from "axios";
 const { brand, darklight, primary } = Colors;
 
 const FichaClinica = ({ navigation }) => {
-  const [mascotas, setMascotas] = useState("Jacko");
+  const [mascotas, setMascotas] = useState("");
   const [idMascota, setIdMascota] = useState("");
   const [urlGlobal, setUrlGlobal] = useState("");
   const [tokenState, setTokenState] = useState("");
@@ -45,9 +45,11 @@ const FichaClinica = ({ navigation }) => {
     const url = await AsyncStorage.getItem("urlGlobal");
     const token = await AsyncStorage.getItem("token");
     const idString = await AsyncStorage.getItem("idMascota");
+    const mascotaNombre = await AsyncStorage.getItem("nombreMascota");
     setIdMascota(idString);
     setUrlGlobal(url);
     setTokenState(token);
+    setNombreMascota(mascotaNombre);
     ObtenerConsultasMedicas(url, token, idString);
   };
   const clearLogin = async () => {
@@ -63,6 +65,7 @@ const FichaClinica = ({ navigation }) => {
     tokenObtenido,
     idMascota
   ) => {
+    setLoading(true);
     const url =
       urlObtenida +
       "api/v1/Client/pets/" +
@@ -118,12 +121,14 @@ const FichaClinica = ({ navigation }) => {
             });
             // console.log(data);
             setDataObtenida(data);
+            setLoading(false);
           }
         }
       })
       .catch((error) => {
         console.log(error);
-        clearLogin();
+        setLoading(false);
+        setMensaje("Mascota sin historial de consultas.");
       });
   };
 
@@ -148,21 +153,21 @@ const FichaClinica = ({ navigation }) => {
 
     axios
       .get(urlObtenida, configAxios, { responseType: "application/pdf" })
-      .then((response) => {
+      .then(async (response) => {
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
           if (Platform.OS === "ios") {
-            const downloadedFile = FileSystem.downloadAsync(
+            const downloadedFile = await FileSystem.downloadAsync(
               urlObtenida,
               FileSystem.documentDirectory +
                 "FichaClinica" +
                 nombreMascota +
                 ".pdf"
             )
-              .then(({ uri }) => {
+              .then(async ({ uri }) => {
                 const UTI = "public.pdf";
-                const shareResult = Sharing.shareAsync(uri, { UTI });
+                const shareResult = await Sharing.shareAsync(uri, { UTI });
                 console.log("Finished downloading to ", uri);
                 setLoading(false);
               })
@@ -178,9 +183,25 @@ const FichaClinica = ({ navigation }) => {
                 nombreMascota +
                 ".pdf"
             )
-              .then(({ uri }) => {
-                const UTI = "public.pdf";
-                const shareResult = Sharing.shareAsync(uri, { UTI });
+              .then(async ({ uri }) => {
+                // const permissions =
+                //   await StorageAccessFramework.requestDirectoryPermissionsAsync();
+                // if (permissions.granted) {
+                //   // Gets SAF URI from response
+                //   const uri = permissions.directoryUri;
+
+                //   // Gets all files inside of selected directory
+                //   const files = await StorageAccessFramework.readDirectoryAsync(
+                //     uri
+                //   );
+                //   console.log(
+                //     `Files inside ${uri}:\n\n${JSON.stringify(files)}`
+                //   );
+                // }
+                const dialogTitle = "FichaClinica" + nombreMascota + ".pdf";
+                const shareResult = await Sharing.shareAsync(uri, {
+                  dialogTitle,
+                });
                 console.log("Finished downloading to ", uri);
                 setLoading(false);
               })
@@ -206,7 +227,10 @@ const FichaClinica = ({ navigation }) => {
       <StyledContainer>
         <StatusBar style="dark" />
         <InnerContainer>
-          <SubTitle>Ficha Clinica de {nombreMascota}</SubTitle>
+          <SubTitle>Ficha Clínica de {nombreMascota} </SubTitle>
+          <RightIconLabel>
+            <Ionicons name={"receipt"} size={30} color={darklight} />
+          </RightIconLabel>
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {
@@ -216,8 +240,7 @@ const FichaClinica = ({ navigation }) => {
           >
             {({ handleChange, handleBlur, handleSubmit, values }) => (
               <StyledFormAreaCard>
-                <MsgBox>Información sobre Atenciones Veterinarias </MsgBox>
-                <Line />
+                <MsgBox>{mensaje}</MsgBox>
                 {dataObtenida.map((row, i) => (
                   <>
                     <Card key={i}>
@@ -284,7 +307,6 @@ const FichaClinica = ({ navigation }) => {
             )}
           </Formik>
         </InnerContainer>
-        <Line />
         <StyledButton google onPress={DescargarFichaClinica}>
           {loading ? (
             <ActivityIndicator size="large" color={primary} />

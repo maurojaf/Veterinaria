@@ -7,11 +7,16 @@ import {
   PageTitle,
   SubTitle,
   StyledFormArea,
+  StyledFormAreaImage,
   LeftIcon,
+  LeftIconInput,
   StyledInputLabel,
   StyledInputLabelMensaje,
+  RightIconLabel,
   StyledTextInput,
+  RightIconTextBox,
   RightIconWelcome,
+  RightIcon,
   StyledButton,
   ButtonText,
   MsgBox,
@@ -24,7 +29,7 @@ import {
   StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View, Picker, ActivityIndicator, Image } from "react-native";
+import { View, Picker, ActivityIndicator, Image, Platform } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
@@ -121,26 +126,31 @@ const Usuario = ({ navigation }) => {
       Telephone: telephone,
       Observation: observation,
     };
-    axios
-      .put(url, dataEnviada, configAxios)
-      .then((response) => {
-        if (response.status !== 200) {
+    if (name === "" || email === "" || telephone === "" || observation === "") {
+      setMensaje("Existen campos vacios, llénalos");
+      setLoading(false);
+    } else {
+      axios
+        .put(url, dataEnviada, configAxios)
+        .then((response) => {
+          if (response.status !== 200) {
+            setLoading(false);
+            setMensaje("error al enviar información");
+          } else {
+            setLoading(false);
+            setMensaje(response.data.Result.Value.Mensaje);
+          }
+        })
+        .catch((error) => {
           setLoading(false);
-          setMensaje("error al enviar información");
-        } else {
-          setLoading(false);
-          setMensaje(response.data.Result.Value.Mensaje);
-        }
-      })
-      .catch((error) => {
-        setLoading(false);
-        setMensaje("Error al modificar datos");
-        if (error.response.status === 401) {
-          clearLogin();
-        } else {
-          console.log(error.response);
-        }
-      });
+          setMensaje("Error al modificar datos");
+          if (error.response.status === 401) {
+            clearLogin();
+          } else {
+            console.log(error.response);
+          }
+        });
+    }
   };
 
   useEffect(() => {
@@ -152,8 +162,16 @@ const Usuario = ({ navigation }) => {
       <StyledContainer>
         <StatusBar style="dark" />
         <InnerContainer>
-          <SubTitle>Información de Usuario </SubTitle>
-          <Formik initialValues={{ mascota: "" }} onSubmit={(values) => {}}>
+          <SubTitle>Información de Usuario</SubTitle>
+          <RightIconLabel>
+            <Ionicons
+              name={Platform.OS === "ios" ? "logo-apple" : "logo-android"}
+              size={30}
+              color={darklight}
+            />
+          </RightIconLabel>
+
+          <Formik initialValues={{ usuario: "" }} onSubmit={(values) => {}}>
             {({
               handleChange,
               handleBlur,
@@ -161,75 +179,111 @@ const Usuario = ({ navigation }) => {
               isSubmitting,
               values,
             }) => (
-              <StyledFormArea>
-                <MsgBox>Revisa / Edita tu Información </MsgBox>
-                <Line />
-                <StyledInputLabel>Nombre Completo</StyledInputLabel>
-                <StyledTextInput
-                  value={nombre}
-                  onChangeText={(itemValue) => setNombre(String(itemValue))}
-                />
-                <StyledInputLabel>Correo</StyledInputLabel>
-                <StyledTextInput
-                  value={mail}
-                  onChangeText={(itemValue) => setMail(String(itemValue))}
-                />
-                <StyledInputLabel>Teléfono</StyledInputLabel>
-                <StyledTextInput
-                  value={telefono}
-                  onChangeText={(itemValue) => setTelefono(String(itemValue))}
-                />
-                <StyledInputLabel>Usuario Aplicación</StyledInputLabel>
-                <StyledTextInput
-                  disable
-                  value={user}
-                  onChangeText={(itemValue) => setUser(String(itemValue))}
-                />
-                <StyledInputLabel>Observaciones</StyledInputLabel>
-                <StyledTextInput
-                  value={observaciones}
-                  onChangeText={(itemValue) =>
-                    setObservaciones(String(itemValue))
-                  }
-                />
-                <StyledInputLabel>Foto</StyledInputLabel>
-                <UserImage resizeMode="cover" source={{ uri: imagen }} />
-                <Line />
-                <StyledInputLabelMensaje>{mensaje}</StyledInputLabelMensaje>
-                <StyledButton
-                  usuario
-                  onPress={() => {
-                    GuardarDatosModificadosUsuario(
-                      idUsuario,
-                      nombre,
-                      mail,
-                      telefono,
-                      observaciones
-                    );
-                  }}
-                >
-                  {loading ? (
-                    <ButtonText>Guardando Datos...</ButtonText>
-                  ) : (
-                    <>
-                      <ButtonText>Guardar Datos Editados</ButtonText>
-                      <RightIconWelcome>
-                        <Octicons
-                          name={"checklist"}
-                          size={25}
-                          color={primary}
-                        />
-                      </RightIconWelcome>
-                    </>
-                  )}
-                </StyledButton>
-                <StyledButton onPress={clearLogin}>
-                  <ButtonText>Cerrar Sesión</ButtonText>
-                  <RightIconWelcome>
-                    <Octicons name={"sign-out"} size={25} color={primary} />
-                  </RightIconWelcome>
-                </StyledButton>
-              </StyledFormArea>
+              <>
+                <StyledFormAreaImage>
+                  <UserImage resizeMode="cover" source={{ uri: imagen }} />
+                </StyledFormAreaImage>
+                <StyledFormArea>
+                  <Line />
+                  <MsgBox>Revisa / Edita tu Información </MsgBox>
+                  <Line />
+                  <StyledInputLabel>Nombre Completo</StyledInputLabel>
+                  <View>
+                    <StyledTextInput
+                      value={nombre}
+                      onChangeText={(itemValue) => setNombre(String(itemValue))}
+                    />
+                    <LeftIconInput>
+                      <Ionicons
+                        name={"person-circle"}
+                        size={30}
+                        color={darklight}
+                      />
+                    </LeftIconInput>
+                  </View>
+                  <View>
+                    <StyledInputLabel>Correo</StyledInputLabel>
+                    <StyledTextInput
+                      value={mail}
+                      onChangeText={(itemValue) => setMail(String(itemValue))}
+                    />
+                    <LeftIcon>
+                      <Ionicons name={"mail"} size={30} color={darklight} />
+                    </LeftIcon>
+                  </View>
+                  <View>
+                    <StyledInputLabel>Teléfono</StyledInputLabel>
+                    <StyledTextInput
+                      value={telefono}
+                      onChangeText={(itemValue) =>
+                        setTelefono(String(itemValue))
+                      }
+                    />
+                    <LeftIcon>
+                      <Ionicons name={"call"} size={30} color={darklight} />
+                    </LeftIcon>
+                  </View>
+                  <View>
+                    <StyledInputLabel>Usuario Aplicación</StyledInputLabel>
+                    <StyledTextInput
+                      disable
+                      value={user}
+                      onChangeText={(itemValue) => setUser(String(itemValue))}
+                    />
+                    <LeftIcon>
+                      <Ionicons name={"person"} size={30} color={darklight} />
+                    </LeftIcon>
+                  </View>
+                  <View>
+                    <StyledInputLabel>Observaciones</StyledInputLabel>
+                    <StyledTextInput
+                      value={observaciones}
+                      onChangeText={(itemValue) =>
+                        setObservaciones(String(itemValue))
+                      }
+                    />
+                    <LeftIcon>
+                      <Ionicons name={"reader"} size={30} color={darklight} />
+                    </LeftIcon>
+                  </View>
+
+                  <Line />
+                  <SubTitle>{mensaje}</SubTitle>
+                  <StyledButton
+                    usuario
+                    onPress={() => {
+                      GuardarDatosModificadosUsuario(
+                        idUsuario,
+                        nombre,
+                        mail,
+                        telefono,
+                        observaciones
+                      );
+                    }}
+                  >
+                    {loading ? (
+                      <ButtonText>Guardando Datos...</ButtonText>
+                    ) : (
+                      <>
+                        <ButtonText>Guardar Datos Editados</ButtonText>
+                        <RightIconWelcome>
+                          <Octicons
+                            name={"checklist"}
+                            size={25}
+                            color={primary}
+                          />
+                        </RightIconWelcome>
+                      </>
+                    )}
+                  </StyledButton>
+                  <StyledButton onPress={clearLogin}>
+                    <ButtonText>Cerrar Sesión</ButtonText>
+                    <RightIconWelcome>
+                      <Octicons name={"sign-out"} size={25} color={primary} />
+                    </RightIconWelcome>
+                  </StyledButton>
+                </StyledFormArea>
+              </>
             )}
           </Formik>
         </InnerContainer>

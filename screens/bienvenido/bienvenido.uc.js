@@ -10,6 +10,7 @@ import {
   RightIconWelcome,
   StyledButton,
   ButtonText,
+  RightIconLabel,
   MsgBox,
   Line,
   Colors,
@@ -90,6 +91,9 @@ const Bienvenido = ({ navigation }) => {
         <StatusBar style="dark" />
         <InnerContainer>
           <SubTitle>Bienvenido {nombreUsuario} </SubTitle>
+          <RightIconLabel>
+            <Ionicons name={"person-circle"} size={30} color={darklight} />
+          </RightIconLabel>
           <Formik initialValues={{ mascota: "" }} onSubmit={(values) => {}}>
             {({
               handleChange,

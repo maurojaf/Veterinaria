@@ -73,7 +73,7 @@ const Login = ({ navigation }) => {
         .post(url, credentials)
         .then((response) => {
           if (response.status !== 200) {
-            HandleMessage("Error al Iniciar Sesión", response.status);
+            HandleMessage("Error en usuario y/o contraseña", response.status);
             setLoading(false);
           } else {
             navigation.navigate("Bienvenido");
@@ -158,6 +158,9 @@ const Login = ({ navigation }) => {
         HandleMessage("Error de conexión");
       });
   };
+  const RecuperarCuenta = () => {
+    navigation.navigate("Recuperar");
+  };
 
   useEffect(() => {
     HandleSelect();
@@ -172,8 +175,8 @@ const Login = ({ navigation }) => {
             resizeMode="cover"
             source={require("../../assets/img/login.png")}
           />
-          <PageTitle>Veterinaria Bienvenido</PageTitle>
-          <SubTitle>Selecciona La Veterinaria que visitaste</SubTitle>
+          <PageTitle>Bienvenido/a</PageTitle>
+          <SubTitle>Selecciona La Veterinaria</SubTitle>
           <Formik
             initialValues={{ LoginUser: "", Password: "" }}
             onSubmit={(values, { setSubmitting }) => {
@@ -249,7 +252,7 @@ const Login = ({ navigation }) => {
                   </StyledButton>
                 ) : (
                   <StyledButton onPress={handleSubmit}>
-                    <Fontisto name="google" color={primary} size={25} />
+                    <Fontisto name="male" color={primary} size={25} />
                     <ButtonText google>Iniciar Sesión </ButtonText>
                   </StyledButton>
                 )}
@@ -261,7 +264,7 @@ const Login = ({ navigation }) => {
                 </StyledButton>
                 <ExtraView>
                   <ExtraText>No recuerdas tus datos? </ExtraText>
-                  <TextLink>
+                  <TextLink onPress={RecuperarCuenta}>
                     <TextLinkContent>Recuperar Cuenta</TextLinkContent>
                   </TextLink>
                 </ExtraView>

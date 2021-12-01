@@ -10,6 +10,7 @@ import Bienvenido from "../screens/bienvenido/bienvenido.uc";
 import Mascotas from "../screens/listado-mascotas/mascotas.uc";
 import FichaClinica from "../screens/fichaclinica/ficha-clinica.uc";
 import Usuario from "../screens/usuario/usuario.uc";
+import RecuperarCuenta from "../screens/recuperar-cuenta/recuperar-cuenta.uc";
 
 const { primary, tertiary } = Colors;
 
@@ -45,6 +46,7 @@ const RootStack = () => {
             ) : (
               <>
                 <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Recuperar" component={RecuperarCuenta} />
               </>
             )}
           </Stack.Navigator>
