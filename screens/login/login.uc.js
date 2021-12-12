@@ -258,14 +258,16 @@ const Login = ({ navigation }) => {
                 )}
 
                 <Line />
-                <StyledButton google={true} onPress={handleSubmit}>
+                {/* <StyledButton google={true} onPress={handleSubmit}>
                   <Fontisto name="google" color={primary} size={25} />
                   <ButtonText google> Iniciar sesión con Google </ButtonText>
-                </StyledButton>
+                </StyledButton> */}
                 <ExtraView>
-                  <ExtraText>No recuerdas tus datos? </ExtraText>
+                  <ExtraText>Olvidaste tus datos? </ExtraText>
                   <TextLink onPress={RecuperarCuenta}>
-                    <TextLinkContent>Recuperar Cuenta</TextLinkContent>
+                    <TextLinkContent>
+                      Clic Aquí para recuperar cuenta
+                    </TextLinkContent>
                   </TextLink>
                 </ExtraView>
               </StyledFormArea>

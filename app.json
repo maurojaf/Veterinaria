@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "veterinaria-ReactNative",
-    "slug": "veterinaria-ReactNative",
-    "version": "1.2.1",
+    "name": "vetmin-ReactNative",
+    "slug": "vetmin-ReactNative",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -25,7 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.maurojaf.veterinariaReactNative"
+      "package": "com.release.veterinariaReactNative"
     },
     "web": {
       "favicon": "./assets/favicon.png"

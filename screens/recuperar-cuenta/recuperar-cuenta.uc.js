@@ -32,6 +32,8 @@ import Recaptcha from "react-native-recaptcha-that-works";
 const { brand, darklight, primary } = Colors;
 
 const RecuperarCuenta = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState("");
   const [mail, setMail] = useState("");
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
@@ -45,6 +47,43 @@ const RecuperarCuenta = ({ navigation }) => {
   };
   const VolverLogin = () => {
     navigation.navigate("Login");
+  };
+
+  const EnvarCorreoParaRecuperarCuenta = async () => {
+    setLoading(true);
+    const url = "" + "api/v1/LoginClient/LoginValidate";
+    let configAxios = {
+      headers: {
+        // Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+    let dataEnviada = {
+      Email: mail,
+    };
+    if (mail === "") {
+      setMensaje("Ingresa un correo!");
+      setLoading(false);
+    } else {
+      axios
+        .post(url, dataEnviada, configAxios)
+        .then((response) => {
+          if (response.status !== 200) {
+            setLoading(false);
+            setMensaje("Correo no válido");
+          } else {
+            // navigation.navigate("Bienvenido");
+            setMensaje("Se ha enviado un correo con tus datos");
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+          setMensaje("Error al conectar con la Base de Datos");
+          setLoading(false);
+        });
+    }
   };
 
   useEffect(() => {}, []);
@@ -77,12 +116,34 @@ const RecuperarCuenta = ({ navigation }) => {
                     <Ionicons name={"mail"} size={30} color={darklight} />
                   </LeftIconInput>
                 </View>
-                <StyledButton google>
-                  <ButtonText>Solicitar</ButtonText>
-                  <RightIconWelcome>
-                    <Ionicons name={"help-buoy"} size={25} color={primary} />
-                  </RightIconWelcome>
-                </StyledButton>
+                <SubTitle>{mensaje}</SubTitle>
+                {loading ? (
+                  <>
+                    <StyledButton
+                      google
+                      onPress={EnvarCorreoParaRecuperarCuenta}
+                    >
+                      <ActivityIndicator size="large" color={primary} />
+                    </StyledButton>
+                  </>
+                ) : (
+                  <>
+                    <StyledButton
+                      google
+                      onPress={EnvarCorreoParaRecuperarCuenta}
+                    >
+                      <ButtonText>Solicitar</ButtonText>
+                      <RightIconWelcome>
+                        <Ionicons
+                          name={"help-buoy"}
+                          size={25}
+                          color={primary}
+                        />
+                      </RightIconWelcome>
+                    </StyledButton>
+                  </>
+                )}
+
                 <StyledButton usuario onPress={VolverLogin}>
                   <ButtonText>Cancelar</ButtonText>
                   <RightIconWelcome>
