@@ -4,10 +4,8 @@ import {
   StyledContainer,
   InnerContainer,
   StyledTextInput,
-  PageLogo,
+  StyledPicker,
   LeftIconInput,
-  LeftIcon,
-  PageTitle,
   SubTitle,
   StyledFormArea,
   RightIconWelcome,
@@ -35,6 +33,10 @@ const RecuperarCuenta = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [mail, setMail] = useState("");
+  const [selectVeterinaria, setSelectVeterinaria] = useState([]);
+  const [veterinaria, setVeterinaria] = useState("");
+  const [urlLoginConcatenado, setUrlLoginConcatenado] = useState("");
+  const [correoValidado, setCorreoValidado] = useState(false);
   const { storedCredentials, setStoredCredentials } =
     useContext(CredentialsContext);
 
@@ -48,10 +50,67 @@ const RecuperarCuenta = ({ navigation }) => {
   const VolverLogin = () => {
     navigation.navigate("Login");
   };
-
+  const HandleSelect = () => {
+    setLoading(true);
+    const url =
+      "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
+    axios
+      .get(url)
+      .then((response) => {
+        // console.log(response.data.Result.Value.Token);
+        if (response.status !== 200) {
+          setMensaje("Error al obtener información de las Veterinarias");
+          setLoading(false);
+        } else {
+          const data = [];
+          response.data.Result.Value.map((row, i) => {
+            let ds_json = {
+              veterinaria: "",
+            };
+            ds_json.veterinaria = row.FantasyName;
+            data.push(ds_json);
+          });
+          setSelectVeterinaria(data);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log(error);
+        HandleMessage("Error de conexión");
+      });
+  };
+  const handleChangeVeterinaria = async (value) => {
+    setLoading(true);
+    setVeterinaria(value);
+    const url =
+      "https://appserv-contract.azurewebsites.net/api/v1/LoginEmployee";
+    axios
+      .get(url)
+      .then((response) => {
+        if (response.status !== 200) {
+          setLoading(false);
+        } else {
+          response.data.Result.Value.map((row, i) => {
+            if (row.FantasyName === value) {
+              row.Urls.map((row2, i) => {
+                row2.UrlName === "Api Login"
+                  ? setUrlLoginConcatenado(row2.Url)
+                  : AsyncStorage.setItem("urlGlobal", row2.Url);
+              });
+            }
+            setLoading(false);
+          });
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log(error);
+      });
+  };
   const EnvarCorreoParaRecuperarCuenta = async () => {
     setLoading(true);
-    const url = "" + "api/v1/LoginClient/LoginValidate";
+    const url = urlLoginConcatenado + "api/v1/LoginClient/RestoreUser";
     let configAxios = {
       headers: {
         // Authorization: `Bearer ${token}`,
@@ -65,28 +124,56 @@ const RecuperarCuenta = ({ navigation }) => {
     if (mail === "") {
       setMensaje("Ingresa un correo!");
       setLoading(false);
+    } else if (urlLoginConcatenado === "") {
+      setMensaje("Seleccione la veterinaria donde registro sus datos");
+      setLoading(false);
     } else {
-      axios
-        .post(url, dataEnviada, configAxios)
-        .then((response) => {
-          if (response.status !== 200) {
+      if (correoValidado) {
+        setMensaje("Se esta validando su información, favor espere");
+        axios
+          .post(url, dataEnviada, configAxios)
+          .then((response) => {
+            if (response.status !== 200) {
+              setLoading(false);
+              setMensaje("Correo no existe");
+            } else {
+              // navigation.navigate("Bienvenido");
+              console.log();
+              setMensaje("Se ha enviado un correo con tus datos");
+            }
             setLoading(false);
-            setMensaje("Correo no válido");
-          } else {
-            // navigation.navigate("Bienvenido");
-            setMensaje("Se ha enviado un correo con tus datos");
-          }
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log(error);
-          setMensaje("Error al conectar con la Base de Datos");
-          setLoading(false);
-        });
+          })
+          .catch((error) => {
+            console.log(error);
+            setMensaje("Error al conectar con la Base de Datos");
+            setLoading(false);
+          });
+      } else {
+        setMensaje("Ingrese un correo válido");
+        setLoading(false);
+      }
     }
   };
+  const validateMail = (text) => {
+    // console.log(text);
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(text) === false) {
+      // console.log("Email is Not Correct");
+      setCorreoValidado(false);
+      return false;
+    } else {
+      // console.log("Email is Correct");
+      setCorreoValidado(true);
+    }
+  };
+  const handleChangeMail = (e) => {
+    validateMail(e);
+    setMail(e);
+  };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    HandleSelect();
+  }, []);
 
   return (
     <KeyboardAvoidingWrapper>
@@ -94,6 +181,22 @@ const RecuperarCuenta = ({ navigation }) => {
         <StatusBar style="dark" />
         <InnerContainer>
           <SubTitle>Recuperar Cuenta </SubTitle>
+          <StyledFormArea>
+            <StyledPicker
+              selectedValue={veterinaria}
+              value={veterinaria}
+              onValueChange={(itemValue) => handleChangeVeterinaria(itemValue)}
+            >
+              <StyledPicker.Item label="Seleccione Veterinaria" value="" />
+              {selectVeterinaria.map((data, i) => (
+                <StyledPicker.Item
+                  label={data.veterinaria}
+                  value={data.veterinaria}
+                  key={i}
+                />
+              ))}
+            </StyledPicker>
+          </StyledFormArea>
           <RightIconLabel>
             <Ionicons name={"key"} size={30} color={darklight} />
           </RightIconLabel>
@@ -110,7 +213,9 @@ const RecuperarCuenta = ({ navigation }) => {
                 <View>
                   <StyledTextInput
                     value={mail}
-                    onChangeText={(itemValue) => setMail(String(itemValue))}
+                    onChangeText={(itemValue) =>
+                      handleChangeMail(String(itemValue))
+                    }
                   />
                   <LeftIconInput>
                     <Ionicons name={"mail"} size={30} color={darklight} />

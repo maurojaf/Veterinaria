@@ -204,6 +204,7 @@ const Usuario = ({ navigation }) => {
                   <View>
                     <StyledInputLabel>Correo</StyledInputLabel>
                     <StyledTextInput
+                      editable={false}
                       value={mail}
                       onChangeText={(itemValue) => setMail(String(itemValue))}
                     />
@@ -226,7 +227,7 @@ const Usuario = ({ navigation }) => {
                   <View>
                     <StyledInputLabel>Usuario Aplicación</StyledInputLabel>
                     <StyledTextInput
-                      disable
+                      editable={false}
                       value={user}
                       onChangeText={(itemValue) => setUser(String(itemValue))}
                     />
