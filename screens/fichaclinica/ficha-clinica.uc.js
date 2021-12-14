@@ -24,6 +24,7 @@ import * as Sharing from "expo-sharing";
 import { CredentialsContext } from "../../components/credentials-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import moment from "moment";
 
 //Colors
 const { brand, darklight, primary } = Colors;
@@ -59,7 +60,6 @@ const FichaClinica = ({ navigation }) => {
       })
       .catch((error) => console.log(error));
   };
-
   const ObtenerConsultasMedicas = async (
     urlObtenida,
     tokenObtenido,
@@ -107,7 +107,7 @@ const FichaClinica = ({ navigation }) => {
                 LstProducts: [],
               };
               ds_json.Anamnesis = row.Anamnesis;
-              ds_json.Date = row.Date;
+              ds_json.Date = moment(row.Date).format("DD-MM-YYYY");
               ds_json.Diagnosis = row.Diagnosis;
               ds_json.Treatment = row.Treatment;
               ds_json.Observation = row.Observation;
@@ -131,7 +131,6 @@ const FichaClinica = ({ navigation }) => {
         setMensaje("Mascota sin historial de consultas.");
       });
   };
-
   const DescargarFichaClinica = async () => {
     setLoading(true);
     const url = await AsyncStorage.getItem("urlGlobal");
@@ -234,7 +233,6 @@ const FichaClinica = ({ navigation }) => {
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {
-              console.log(values);
               navigation.navigate("Login");
             }}
           >

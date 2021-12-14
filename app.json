@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "vetmin-ReactNative",
-    "slug": "vetmin-ReactNative",
+    "name": "Vetmin",
+    "slug": "Vetmin",
     "version": "1.3.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

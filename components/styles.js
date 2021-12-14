@@ -37,9 +37,32 @@ export const PageLogo = styled.Image`
 export const UserImage = styled.Image`
   width: 150px;
   height: 150px;
-  border-radius: 75;
+  border-radius: 75px;
   overflow: hidden;
   border-color: ${tertiary};
+`;
+export const PetImage = styled.Image`
+  width: 90px;
+  height: 90px;
+  border-radius: 75px;
+  overflow: hidden;
+  border-color: ${tertiary};
+  margin-bottom: 20px;
+`;
+
+export const CircleName = styled.Text`
+  width: 90px;
+  height: 90px;
+  border-radius: 50px;
+  border-color: ${tertiary};
+  font-size: 50px;
+  text-align: center;
+  font-weight: bold;
+  background: #099bdd;
+  line-height: 110px;
+  color: white;
+  margin-bottom: 20px;
+  display: flex;
 `;
 
 export const PageTitle = styled.Text`

@@ -73,7 +73,7 @@ const Login = ({ navigation }) => {
         .post(url, credentials)
         .then((response) => {
           if (response.status !== 200) {
-            HandleMessage("Error en usuario y/o contraseña", response.status);
+            HandleMessage("Error en usuario y/o contraseña");
             setLoading(false);
           } else {
             navigation.navigate("Bienvenido");
@@ -83,10 +83,11 @@ const Login = ({ navigation }) => {
           setLoading(false);
         })
         .catch((error) => {
-          console.log(error);
+          error.response.status === 422
+            ? HandleMessage("Error de usuario/contraseña")
+            : HandleMessage("Error de conexión");
           setSubmitting(false);
           setLoading(false);
-          HandleMessage("Error de conexión");
         });
     }
   };

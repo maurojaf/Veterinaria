@@ -3,19 +3,16 @@ import { StatusBar } from "expo-status-bar";
 import {
   StyledContainer,
   InnerContainer,
-  PageLogo,
-  PageTitle,
+  StyledFormAreaImage,
   SubTitle,
   StyledFormArea,
-  LeftIcon,
-  StyledInputLabel,
-  StyledTextInput,
-  RightIcon,
+  PetImage,
   RightIconLabel,
   StyledButton,
   ButtonText,
   MsgBox,
   Line,
+  CircleName,
   Colors,
   ExtraText,
   ExtraView,
@@ -24,12 +21,13 @@ import {
   StyledPicker,
 } from "../../components/styles";
 import { Formik } from "formik";
-import { View, Picker, ActivityIndicator } from "react-native";
+import { View, Picker, ActivityIndicator, Text } from "react-native";
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons";
 import KeyboardAvoidingWrapper from "../../components/keyboard-avoiding-wrapper";
 import { CredentialsContext } from "../../components/credentials-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import moment from "moment";
 
 //Colors
 const { brand, darklight, primary } = Colors;
@@ -42,10 +40,14 @@ const Mascotas = ({ navigation }) => {
   const [pesoMascota, setPesoMascota] = useState(null);
   const [idMascota, setIdMascota] = useState(null);
   const [loading, setLoading] = useState(false);
-  // const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
+  const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [edad, setEdad] = useState("");
   const [especie, setEspecie] = useState("");
   const [raza, setRaza] = useState("");
+  const [imagen, setImagen] = useState("");
+  const [initial, setInitial] = useState("");
+  const [imagenVacia, setImagenVacia] = useState(true);
+  const [valueMascota, setValueMascota] = useState("");
   const [idMascotaStorage, setIdMascotaStorage] = useState("");
   const [disabledDetalleAtención, setDisabledDetalleAtención] = useState(true);
   const { storedCredentials, setStoredCredentials } =
@@ -62,7 +64,6 @@ const Mascotas = ({ navigation }) => {
   const GetUrlGlobal = async () => {
     const url = await AsyncStorage.getItem("urlGlobal");
     const token = await AsyncStorage.getItem("token");
-    console.log(token);
     setUrlGlobal(url);
     setToken(token);
     getSelectMascotas(url, token);
@@ -86,8 +87,10 @@ const Mascotas = ({ navigation }) => {
           const data = [];
           response.data.Result.Value.map((row, i) => {
             let ds_json = {
+              id: 0,
               mascota: "",
             };
+            ds_json.id = row.Id;
             ds_json.mascota = row.Name;
             data.push(ds_json);
           });
@@ -103,16 +106,20 @@ const Mascotas = ({ navigation }) => {
       });
   };
   const handleSelectMascota = async (value) => {
-    setMascotas(value);
+    setValueMascota(value);
+    setMascotas("");
     setDisabledDetalleAtención(true);
     setPesoMascota(null);
-    // setFechaNacimiento(row.DateOfBirth);
+    setFechaNacimiento("");
     setEdad(null);
     setEspecie("");
     setRaza("");
+    setImagen("");
+    setInitial("");
     setIdMascota(null);
     setLoading(true);
-    const url = urlGlobal + "api/v1/Client/pets";
+    setImagenVacia(true);
+    const url = urlGlobal + "api/v1/Client/pets/" + parseInt(value);
     let configAxios = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -126,21 +133,26 @@ const Mascotas = ({ navigation }) => {
         if (response.status !== 200) {
           console.log("error al obtener información");
         } else {
-          response.data.Result.Value.map((row, i) => {
-            if (row.Name === value) {
-              AsyncStorage.setItem("idMascota", JSON.stringify(row.Id));
-              AsyncStorage.setItem("nombreMascota", value);
-
-              setIdMascota(row.Id);
-              setPesoMascota(row.Weight);
-              // setFechaNacimiento(row.DateOfBirth);
-              setEdad(row.Age);
-              setEspecie(row.Specie);
-              setRaza(row.Clasification);
-              setDisabledDetalleAtención(false);
-              return "ok";
-            }
-          });
+          let res = response.data.Result.Value;
+          AsyncStorage.setItem("idMascota", JSON.stringify(value));
+          AsyncStorage.setItem("nombreMascota", res.Name);
+          setMascotas(res.Name);
+          setIdMascota(value);
+          setPesoMascota(res.Weight);
+          setFechaNacimiento(moment(res.DateOfBirth).format("DD-MM-YYYY"));
+          setEdad(res.Age);
+          setEspecie(res.Specie);
+          setRaza(res.Clasification);
+          setDisabledDetalleAtención(false);
+          setImagen(res.Image);
+          if (typeof res.Image === "undefined" || res.Image === null) {
+            setImagenVacia(true);
+          } else {
+            setImagenVacia(false);
+            setImagen(res.Image);
+          }
+          setInitial(res.Name.charAt(0) + res.Name.charAt(1));
+          return "ok";
         }
         setLoading(false);
       })
@@ -170,7 +182,6 @@ const Mascotas = ({ navigation }) => {
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {
-              // console.log(values);
               navigation.navigate("FichaClinica");
             }}
           >
@@ -184,17 +195,17 @@ const Mascotas = ({ navigation }) => {
               <StyledFormArea>
                 <MsgBox>Selecciona una de tus mascotas </MsgBox>
                 <StyledPicker
-                  selectedValue={mascotas}
-                  value={values.mascota}
+                  selectedValue={valueMascota}
+                  value={valueMascota}
                   onValueChange={(itemValue, itemIndex) =>
                     handleSelectMascota(itemValue)
                   }
                 >
-                  <StyledPicker.Item label="Seleccione Mascota" value="" />
+                  {/* <StyledPicker.Item label="Seleccione Mascota" value="" /> */}
                   {mascotasSelect.map((row, i) => (
                     <StyledPicker.Item
                       label={row.mascota}
-                      value={row.mascota}
+                      value={row.id}
                       key={i}
                     />
                   ))}
@@ -202,9 +213,18 @@ const Mascotas = ({ navigation }) => {
                 {/* <StyledButton onPress={handleSeleccionarMascota}>
                   <ButtonText>Seleccionar Mascota </ButtonText>
                 </StyledButton> */}
-                <Line />
+                <StyledFormAreaImage>
+                  {imagenVacia === true ? (
+                    <>
+                      <CircleName>{initial}</CircleName>
+                    </>
+                  ) : (
+                    <PetImage resizeMode="cover" source={{ uri: imagen }} />
+                  )}
+                </StyledFormAreaImage>
                 <SubTitle>Nombre : {mascotas}</SubTitle>
                 <SubTitle>Id Mascota : {idMascota}</SubTitle>
+                <SubTitle>Fecha Nacimiento : {fechaNacimiento}</SubTitle>
                 <SubTitle>Especie : {especie}</SubTitle>
                 <SubTitle>Raza : {raza}</SubTitle>
                 <SubTitle>Edad : {edad}</SubTitle>
