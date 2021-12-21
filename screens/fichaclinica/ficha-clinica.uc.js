@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
-  StyledContainer,
+  StyledContainerFicha,
   InnerContainer,
   SubTitle,
   StyledFormAreaCard,
@@ -223,13 +223,23 @@ const FichaClinica = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingWrapper>
-      <StyledContainer>
+      <StyledContainerFicha>
         <StatusBar style="dark" />
         <InnerContainer>
           <SubTitle>Ficha Clínica de {nombreMascota} </SubTitle>
           <RightIconLabel>
             <Ionicons name={"receipt"} size={30} color={darklight} />
           </RightIconLabel>
+          <MsgBox>{mensaje}</MsgBox>
+        </InnerContainer>
+        <StyledButton google onPress={DescargarFichaClinica}>
+          {loading ? (
+            <ActivityIndicator size="large" color={primary} />
+          ) : (
+            <ButtonText>Descargar Ficha en PDF</ButtonText>
+          )}
+        </StyledButton>
+        <InnerContainer>
           <Formik
             initialValues={{ mascota: "" }}
             onSubmit={(values) => {
@@ -238,7 +248,6 @@ const FichaClinica = ({ navigation }) => {
           >
             {({ handleChange, handleBlur, handleSubmit, values }) => (
               <StyledFormAreaCard>
-                <MsgBox>{mensaje}</MsgBox>
                 {dataObtenida.map((row, i) => (
                   <>
                     <Card key={i}>
@@ -305,14 +314,7 @@ const FichaClinica = ({ navigation }) => {
             )}
           </Formik>
         </InnerContainer>
-        <StyledButton google onPress={DescargarFichaClinica}>
-          {loading ? (
-            <ActivityIndicator size="large" color={primary} />
-          ) : (
-            <ButtonText>Descargar Ficha en PDF</ButtonText>
-          )}
-        </StyledButton>
-      </StyledContainer>
+      </StyledContainerFicha>
     </KeyboardAvoidingWrapper>
   );
 };

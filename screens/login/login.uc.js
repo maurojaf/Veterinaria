@@ -91,6 +91,36 @@ const Login = ({ navigation }) => {
         });
     }
   };
+  const HandleLoginGoogle = (values) => {
+    console.log(values);
+    setLoading(true);
+    HandleMessage(null);
+    if (urlLoginConcatenado === "") {
+      HandleMessage("Seleccione una Veterinaria");
+
+      setLoading(false);
+    } else {
+      const url = urlLoginConcatenado + "api/v1/LoginClient/LoginValidate";
+      axios
+        .post(url, values)
+        .then((response) => {
+          if (response.status !== 200) {
+            HandleMessage("Error en usuario y/o contraseña");
+            setLoading(false);
+          } else {
+            navigation.navigate("Bienvenido");
+            PersistLogin(response.data.Result.Value.Token, response.status);
+          }
+          setLoading(false);
+        })
+        .catch((error) => {
+          error.response.status === 422
+            ? HandleMessage("Error de usuario/contraseña")
+            : HandleMessage("Error de conexión");
+          setLoading(false);
+        });
+    }
+  };
   const HandleMessage = (message, type) => {
     setMessage(message);
     setMessageType(type);
@@ -214,8 +244,8 @@ const Login = ({ navigation }) => {
                   ))}
                 </StyledPicker>
                 <MyTextInput
-                  label="Correo Registrado"
-                  icon="mail"
+                  label="Usuario"
+                  icon="person"
                   placeholder="ingresa tu cuenta"
                   placeholderTextColor={darklight}
                   onChangeText={handleChange("LoginUser")}
@@ -253,21 +283,26 @@ const Login = ({ navigation }) => {
                   </StyledButton>
                 ) : (
                   <StyledButton onPress={handleSubmit}>
-                    <Fontisto name="male" color={primary} size={25} />
+                    <Fontisto name="key" color={primary} size={25} />
                     <ButtonText google>Iniciar Sesión </ButtonText>
                   </StyledButton>
                 )}
 
                 <Line />
-                {/* <StyledButton google={true} onPress={handleSubmit}>
+                <StyledButton
+                  google={true}
+                  onPress={() => {
+                    HandleLoginGoogle(values);
+                  }}
+                >
                   <Fontisto name="google" color={primary} size={25} />
                   <ButtonText google> Iniciar sesión con Google </ButtonText>
-                </StyledButton> */}
+                </StyledButton>
                 <ExtraView>
-                  <ExtraText>Olvidaste tus datos? </ExtraText>
+                  {/* <ExtraText>Olvidaste tus datos? </ExtraText> */}
                   <TextLink onPress={RecuperarCuenta}>
                     <TextLinkContent>
-                      Clic Aquí para recuperar cuenta
+                      Clic aquí para recuperar cuenta
                     </TextLinkContent>
                   </TextLink>
                 </ExtraView>

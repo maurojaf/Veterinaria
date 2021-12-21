@@ -23,6 +23,13 @@ export const StyledContainer = styled.View`
   background-color: ${primary};
 `;
 
+export const StyledContainerFicha = styled.View`
+  flex: 1;
+  padding: 25px;
+  padding-top: ${StatusBarHeight + 30}px;
+  background-color: ${secondary};
+`;
+
 export const InnerContainer = styled.View`
   flex: 1;
   width: 100%;
@@ -256,5 +263,5 @@ export const TextLink = styled.TouchableOpacity`
 
 export const TextLinkContent = styled.Text`
   color: ${brand};
-  font-size: 15px;
+  font-size: 17px;
 `;
